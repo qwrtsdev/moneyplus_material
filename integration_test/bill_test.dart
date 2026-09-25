@@ -50,6 +50,6 @@ void main() {
     final listFinder = find.byType(SingleChildScrollView);
     await tester.fling(listFinder, const Offset(0, -100000), 10000);
 
-    expect(find.text('Amount: ฿2.00'), findsOneWidget);
+    expect(find.text('จำนวนเงินต่อคน: ฿2.00'), findsOneWidget);
   });
 }

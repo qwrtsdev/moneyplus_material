@@ -121,7 +121,7 @@ class _BillTabState extends State<BillTab> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bill'),
+        title: const Text('หารบิล'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15.0),
@@ -147,7 +147,7 @@ class _BillTabState extends State<BillTab> {
                       TextFormField(
                         controller: _phoneNumberController,
                         decoration: const InputDecoration(
-                          labelText: 'Phone Number',
+                          labelText: 'เบอร์โทรศัพท์พร้อมเพย์',
                           hintText: '0812345678',
                           prefixIcon: Icon(Icons.phone_android),
                           border: OutlineInputBorder(),
@@ -164,7 +164,7 @@ class _BillTabState extends State<BillTab> {
                       TextFormField(
                         controller: _amountController,
                         decoration: const InputDecoration(
-                          labelText: 'Total Amount (THB)',
+                          labelText: 'ยอดเงิน (บาท)',
                           hintText: '0.00',
                           prefixIcon: Icon(Icons.attach_money),
                           border: OutlineInputBorder(),
@@ -187,8 +187,8 @@ class _BillTabState extends State<BillTab> {
                       
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Split Bill'),
-                        subtitle: const Text('Divide amount equally among people'),
+                        title: const Text('หารบิล'),
+                        subtitle: const Text('หารบิลเท่ากันระหว่างหลายคน'),
                         value: _isSplitBill,
                         onChanged: (value) {
                           setState(() {
@@ -202,14 +202,14 @@ class _BillTabState extends State<BillTab> {
                         DropdownButtonFormField<int>(
                           value: _splitPeopleCount,
                           decoration: const InputDecoration(
-                            labelText: 'Number of People',
+                            labelText: 'จำนวนคน',
                             prefixIcon: Icon(Icons.group),
                             border: OutlineInputBorder(),
                           ),
                           items: List.generate(9, (index) => index + 2).map((count) {
                             return DropdownMenuItem<int>(
                               value: count,
-                              child: Text('$count People'),
+                              child: Text('$count คน'),
                             );
                           }).toList(),
                           onChanged: (value) {
@@ -232,7 +232,7 @@ class _BillTabState extends State<BillTab> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Per person amount:',
+                                  'จำนวนเงินต่อคน:',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -254,7 +254,7 @@ class _BillTabState extends State<BillTab> {
                       FilledButton.icon(
                         onPressed: _generateQrCode,
                         icon: const Icon(Icons.qr_code_2),
-                        label: const Text('Generate QR Code'),
+                        label: const Text('สร้าง QR Code'),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
@@ -280,7 +280,7 @@ class _BillTabState extends State<BillTab> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Scan to Pay',
+                            'เเสกน QR Code เพื่อชำระเงิน',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -318,7 +318,7 @@ class _BillTabState extends State<BillTab> {
                           if (_amountSatang != null) ...[
                             const SizedBox(height: 6),
                             Text(
-                              'Amount: ฿${(_amountSatang! / 100).toStringAsFixed(2)}',
+                              'จำนวนเงิน: ฿${(_amountSatang! / 100).toStringAsFixed(2)}',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -327,7 +327,7 @@ class _BillTabState extends State<BillTab> {
                             if (_isSplitBill) ...[
                               const SizedBox(height: 2),
                               Text(
-                                'Split among $_splitPeopleCount people (Total: ฿${totalAmountDouble.toStringAsFixed(2)})',
+                                'หารระหว่าง $_splitPeopleCount คน (รวม: ฿${totalAmountDouble.toStringAsFixed(2)})',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -349,7 +349,7 @@ class _BillTabState extends State<BillTab> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.share),
-                  label: Text(_isSharing ? 'Preparing...' : 'Share QR Code'),
+                  label: Text(_isSharing ? 'กำลังสร้าง...' : 'แชร์ QR Code'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(
