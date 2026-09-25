@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thai_promptpay_flutter/thai_promptpay_flutter.dart';
 
 class BillTab extends StatefulWidget {
   @override
@@ -19,8 +20,10 @@ class _BillTabState extends State<BillTab> {
         title: const Text('Bill'),
       ),
       body: Center(
-        child: Text(
-          'Welcome to the Bill!',
+        child: PromptPayQr(
+          target: const PromptPayTarget(PromptPayType.mobile, '0812345678'),
+          amountSatang: 5000,
+          size: 240,
         ),
       ),
     );
