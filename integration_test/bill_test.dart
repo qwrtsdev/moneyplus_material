@@ -36,12 +36,20 @@ void main() {
     await tester.tap(find.text('Split Bill'));
     await tester.pumpAndSettle();
 
+    final dropdown = find.text('2 People'); 
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+
+    final dropdownItem = find.text('5 People'); 
+    await tester.tap(dropdownItem);
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Generate QR Code'));
     await tester.pumpAndSettle();
 
     final listFinder = find.byType(SingleChildScrollView);
     await tester.fling(listFinder, const Offset(0, -100000), 10000);
 
-    expect(find.text('Amount: ฿5.00'), findsOneWidget);
+    expect(find.text('Amount: ฿2.00'), findsOneWidget);
   });
 }
