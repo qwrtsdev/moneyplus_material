@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:thai_promptpay_flutter/thai_promptpay_flutter.dart';
 import 'package:moneyplus_material/systems/preference.dart';
 
@@ -11,6 +15,7 @@ class BillTab extends StatefulWidget {
 
 class _BillTabState extends State<BillTab> {
   final _formKey = GlobalKey<FormState>();
+  final _screenshotController = ScreenshotController();
   
   late TextEditingController _phoneNumberController;
   late TextEditingController _amountController;
@@ -20,6 +25,7 @@ class _BillTabState extends State<BillTab> {
   
   bool _isSplitBill = false;
   int _splitPeopleCount = 2;
+  bool _isSharing = false;
 
   @override
   void initState() {
@@ -66,6 +72,46 @@ class _BillTabState extends State<BillTab> {
     });
 
     FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _shareQrCode() async {
+    if (_isSharing) return;
+
+    setState(() => _isSharing = true);
+
+    try {
+      final imageBytes = await _screenshotController.capture(
+        delay: const Duration(milliseconds: 20),
+        pixelRatio: 3.0,
+      );
+
+      if (imageBytes == null) return;
+
+      final directory = await getTemporaryDirectory();
+      final imagePath = '${directory.path}/promptpay_qr.png';
+      final imageFile = File(imagePath);
+      await imageFile.writeAsBytes(imageBytes);
+
+      final totalAmount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+      final shareText = _isSplitBill
+          ? 'PromptPay QR for ฿${((_amountSatang ?? 0) / 100).toStringAsFixed(2)} (Split among $_splitPeopleCount people)'
+          : 'PromptPay QR for ฿${totalAmount.toStringAsFixed(2)}';
+
+      await Share.shareXFiles(
+        [XFile(imagePath)],
+        text: shareText,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share QR code: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
   }
 
   @override
@@ -219,75 +265,99 @@ class _BillTabState extends State<BillTab> {
               ),
               const SizedBox(height: 24),
 
-              if (_targetPhoneNumber != null && _targetPhoneNumber!.isNotEmpty)
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Scan to Pay',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(20),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: PromptPayQr(
-                            target: PromptPayTarget(
-                              PromptPayType.mobile,
-                              _targetPhoneNumber!,
-                            ),
-                            amountSatang: _amountSatang,
-                            size: 220,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'PromptPay ID: $_targetPhoneNumber',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        if (_amountSatang != null) ...[
-                          const SizedBox(height: 6),
+              if (_targetPhoneNumber != null && _targetPhoneNumber!.isNotEmpty) ...[
+                Screenshot(
+                  controller: _screenshotController,
+                  child: Card(
+                    elevation: 2,
+                    color: theme.colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
                           Text(
-                            'Amount: ฿${(_amountSatang! / 100).toStringAsFixed(2)}',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: theme.colorScheme.primary,
+                            'Scan to Pay',
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (_isSplitBill) ...[
-                            const SizedBox(height: 2),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(20),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: PromptPayQr(
+                              target: PromptPayTarget(
+                                PromptPayType.mobile,
+                                _targetPhoneNumber!,
+                              ),
+                              amountSatang: _amountSatang,
+                              size: 220,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'PromptPay ID: $_targetPhoneNumber',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (_amountSatang != null) ...[
+                            const SizedBox(height: 6),
                             Text(
-                              ' Split among $_splitPeopleCount people (Total: ฿${totalAmountDouble.toStringAsFixed(2)})',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
+                              'Amount: ฿${(_amountSatang! / 100).toStringAsFixed(2)}',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
+                            if (_isSplitBill) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                'Split among $_splitPeopleCount people (Total: ฿${totalAmountDouble.toStringAsFixed(2)})',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _isSharing ? null : _shareQrCode,
+                  icon: _isSharing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.share),
+                  label: Text(_isSharing ? 'Preparing...' : 'Share QR Code'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
