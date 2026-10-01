@@ -128,6 +128,17 @@ Future<List<Map<String, dynamic>>> loadSavedSlips() async {
   }
 }
 
+/// Deletes `slips.json`. The slip images themselves are left untouched, so
+/// the next refresh will read them again.
+Future<void> clearSavedSlips() async {
+  final appDir = await getApplicationDocumentsDirectory();
+  final jsonFile = File('${appDir.path}/slips.json');
+
+  if (await jsonFile.exists()) {
+    await jsonFile.delete();
+  }
+}
+
 /// Single function that scans bank folders, extracts amount via OCR,
 /// reads Bank name from folder, and updates 'slips.json'.
 ///
