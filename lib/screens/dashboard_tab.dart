@@ -1,6 +1,5 @@
 // dashboard_tab.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../systems/receipt_recognition.dart';
 
@@ -116,7 +115,7 @@ class _DashboardTabState extends State<DashboardTab> {
             const SizedBox(height: 24),
             Text(
               'ประวัติรายการ',
-              style: GoogleFonts.notoSansThai(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -127,7 +126,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 padding: const EdgeInsets.symmetric(vertical: 24.0),
                 child: Text(
                   'ยังไม่มีรายการ กดปุ่มรีเฟรชเพื่อสแกนสลิป',
-                  style: GoogleFonts.notoSansThai(
+                  style: TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                   ),
@@ -151,7 +150,7 @@ class _DashboardTabState extends State<DashboardTab> {
         const SizedBox(width: 12),
         Text(
           'ชื่อผู้ใช้งาน',
-          style: GoogleFonts.notoSansThai(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
@@ -191,7 +190,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   children: [
                     Text(
                       'สัปดาห์นี้คุณใช้ไปแล้ว',
-                      style: GoogleFonts.notoSansThai(
+                      style: TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
                       ),
@@ -199,7 +198,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     const SizedBox(height: 4),
                     Text(
                       '฿${_weeklyTotal.toStringAsFixed(0)}',
-                      style: GoogleFonts.notoSansThai(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
@@ -219,7 +218,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   _isLoading
                       ? 'กรุณารอรูปโหลด'
                       : 'อัพเดทล่าสุด: ${_lastUpdated != null ? _formatThaiDate(_lastUpdated!) : '-'}',
-                  style: GoogleFonts.notoSansThai(
+                  style: TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
                   ),
@@ -269,12 +268,12 @@ class _DashboardTabState extends State<DashboardTab> {
       ),
       title: Text(
         item['Bank']?.toString() ?? '-',
-        style: GoogleFonts.notoSansThai(),
+        style: TextStyle(),
       ),
-      subtitle: Text(subtitle, style: GoogleFonts.notoSansThai(fontSize: 12)),
+      subtitle: Text(subtitle, style: TextStyle(fontSize: 12)),
       trailing: Text(
         displayAmount,
-        style: GoogleFonts.notoSansThai(fontWeight: FontWeight.w600),
+        style: TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }
