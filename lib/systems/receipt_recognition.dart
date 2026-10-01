@@ -1,9 +1,8 @@
 // receipt_recognition.dart
-import 'dart:convert';
 import 'dart:io';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'slip_storage.dart';
 
 /// List of target bank folders inside Android storage
 const List<String> kBankFolders = [
@@ -67,10 +66,8 @@ String? extractAmount(RecognizedText recognized) {
   final lines = recognized.blocks
       .expand((b) => b.lines)
       .map(
-        (l) => (
-          text: _normalizeLine(l.text.trim()),
-          height: l.boundingBox.height,
-        ),
+        (l) =>
+            (text: _normalizeLine(l.text.trim()), height: l.boundingBox.height),
       )
       .toList();
 
@@ -83,8 +80,7 @@ String? extractAmount(RecognizedText recognized) {
     final sameLine = _firstPositiveMoney(line);
     if (sameLine != null) return sameLine;
 
-    if (i + 1 < lines.length &&
-        !_excludeKeywords.hasMatch(lines[i + 1].text)) {
+    if (i + 1 < lines.length && !_excludeKeywords.hasMatch(lines[i + 1].text)) {
       final nextLine = _firstPositiveMoney(lines[i + 1].text);
       if (nextLine != null) return nextLine;
     }
@@ -110,35 +106,6 @@ String? extractAmount(RecognizedText recognized) {
 // Storage / processing
 // ---------------------------------------------------------------------------
 
-/// Reads whatever is already saved in `slips.json` without touching the
-/// filesystem folders or running OCR. Use this on screen load so the
-/// dashboard shows something instantly, before the user taps refresh.
-Future<List<Map<String, dynamic>>> loadSavedSlips() async {
-  final appDir = await getApplicationDocumentsDirectory();
-  final jsonFile = File('${appDir.path}/slips.json');
-
-  if (!await jsonFile.exists()) return [];
-
-  try {
-    final content = await jsonFile.readAsString();
-    final List<dynamic> jsonList = jsonDecode(content);
-    return List<Map<String, dynamic>>.from(jsonList);
-  } catch (_) {
-    return [];
-  }
-}
-
-/// Deletes `slips.json`. The slip images themselves are left untouched, so
-/// the next refresh will read them again.
-Future<void> clearSavedSlips() async {
-  final appDir = await getApplicationDocumentsDirectory();
-  final jsonFile = File('${appDir.path}/slips.json');
-
-  if (await jsonFile.exists()) {
-    await jsonFile.delete();
-  }
-}
-
 /// Single function that scans bank folders, extracts amount via OCR,
 /// reads Bank name from folder, and updates 'slips.json'.
 ///
@@ -158,25 +125,14 @@ Future<List<Map<String, dynamic>>> processNewSlips({
     }
   }
 
-  // 2. Prepare JSON storage file
-  final appDir = await getApplicationDocumentsDirectory();
-  final jsonFile = File('${appDir.path}/slips.json');
-
-  // 3. Load existing records to filter out already processed images
-  List<Map<String, dynamic>> records = [];
-  if (await jsonFile.exists()) {
-    try {
-      final content = await jsonFile.readAsString();
-      final List<dynamic> jsonList = jsonDecode(content);
-      records = List<Map<String, dynamic>>.from(jsonList);
-    } catch (_) {}
-  }
+  // 2. Load existing records to filter out already processed images
+  final List<Map<String, dynamic>> records = await loadSavedSlips();
 
   final Set<String> processedPaths = records
       .map((e) => e['imagePath'] as String)
       .toSet();
 
-  // 4. Collect unread image files across specified folders
+  // 3. Collect unread image files across specified folders
   List<File> unreadFiles = [];
 
   for (String path in folderPaths) {
@@ -198,7 +154,7 @@ Future<List<Map<String, dynamic>>> processNewSlips({
 
   if (unreadFiles.isEmpty) return records;
 
-  // 4.5 Sort newest-first and cap the batch (testing: limit to latest 10)
+  // 3.5 Sort newest-first and cap the batch (testing: limit to latest 10)
   final List<MapEntry<File, DateTime>> filesWithDates = await Future.wait(
     unreadFiles.map((f) async => MapEntry(f, await f.lastModified())),
   );
@@ -208,7 +164,7 @@ Future<List<Map<String, dynamic>>> processNewSlips({
       ? filesWithDates.take(limit).map((e) => e.key).toList()
       : filesWithDates.map((e) => e.key).toList();
 
-  // 5. Run OCR to get amount and extract Bank name from folder
+  // 4. Run OCR to get amount and extract Bank name from folder
   final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
   try {
@@ -234,8 +190,8 @@ Future<List<Map<String, dynamic>>> processNewSlips({
     await textRecognizer.close();
   }
 
-  // 6. Save updated list to slips.json
-  await jsonFile.writeAsString(jsonEncode(records), mode: FileMode.write);
+  // 5. Save updated list to slips.json
+  await saveSlips(records);
 
   return records;
 }

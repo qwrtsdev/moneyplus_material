@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../systems/preference.dart';
 import '../systems/receipt_recognition.dart';
+import '../systems/slip_storage.dart';
+import '../systems/thai_date.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -11,21 +13,6 @@ class DashboardTab extends StatefulWidget {
 }
 
 class _DashboardTabState extends State<DashboardTab> {
-  static const List<String> _thaiMonthsAbbr = [
-    'ม.ค.',
-    'ก.พ.',
-    'มี.ค.',
-    'เม.ย.',
-    'พ.ค.',
-    'มิ.ย.',
-    'ก.ค.',
-    'ส.ค.',
-    'ก.ย.',
-    'ต.ค.',
-    'พ.ย.',
-    'ธ.ค.',
-  ];
-
   final _budgetController = TextEditingController();
 
   List<Map<String, dynamic>> _history = [];
@@ -195,12 +182,6 @@ class _DashboardTabState extends State<DashboardTab> {
     return copy;
   }
 
-  String _formatThaiDate(DateTime dt) {
-    final buddhistYear = dt.year + 543;
-    final month = _thaiMonthsAbbr[dt.month - 1];
-    return '${dt.day} $month $buddhistYear';
-  }
-
   double get _weeklyTotal {
     double total = 0;
     for (final item in _history) {
@@ -346,7 +327,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 child: Text(
                   _isLoading
                       ? 'กรุณารอรูปโหลด'
-                      : 'อัพเดทล่าสุด: ${_lastUpdated != null ? _formatThaiDate(_lastUpdated!) : '-'}',
+                      : 'อัพเดทล่าสุด: ${_lastUpdated != null ? formatThaiDate(_lastUpdated!) : '-'}',
                   style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ),
@@ -440,7 +421,7 @@ class _DashboardTabState extends State<DashboardTab> {
         : '-฿$rawAmount';
 
     final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
-    final subtitle = txTime != null ? _formatThaiDate(txTime) : '-';
+    final subtitle = txTime != null ? formatThaiDate(txTime) : '-';
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
