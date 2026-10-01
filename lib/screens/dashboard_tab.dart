@@ -220,7 +220,7 @@ class _DashboardTabState extends State<DashboardTab> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24.0),
                 child: Text(
-                  'ยังไม่มีรายการ กดปุ่มรีเฟรชเพื่อสแกนสลิป',
+                  'ยังไม่มีรายการ กรุณากดสแกนสลีปเพื่อเริ่มต้น',
                   style: TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               )

@@ -34,7 +34,7 @@ void main() {
 
         final hasHistoryTiles = find.byType(ListTile).evaluate().isNotEmpty;
         final hasEmptyState = find
-            .text('ยังไม่มีรายการ กดปุ่มรีเฟรชเพื่อสแกนสลิป')
+            .text('ยังไม่มีรายการ กรุณากดสแกนสลีปเพื่อเริ่มต้น')
             .evaluate()
             .isNotEmpty;
         expect(hasHistoryTiles || hasEmptyState, isTrue);
