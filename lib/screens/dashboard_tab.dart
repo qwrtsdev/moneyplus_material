@@ -1,5 +1,8 @@
+// dashboard_tab.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../systems/receipt_recognition.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -9,12 +12,96 @@ class DashboardTab extends StatefulWidget {
 }
 
 class _DashboardTabState extends State<DashboardTab> {
-  // Placeholder history data
-  final List<Map<String, String>> _history = const [
-    {'title': 'ร้านกาแฟ', 'subtitle': '24 ก.ย. 2569', 'amount': '-฿120'},
-    {'title': 'ค่าเดินทาง', 'subtitle': '23 ก.ย. 2569', 'amount': '-฿80'},
-    {'title': 'ค่าอาหาร', 'subtitle': '22 ก.ย. 2569', 'amount': '-฿100'},
+  static const List<String> _thaiMonthsAbbr = [
+    'ม.ค.',
+    'ก.พ.',
+    'มี.ค.',
+    'เม.ย.',
+    'พ.ค.',
+    'มิ.ย.',
+    'ก.ค.',
+    'ส.ค.',
+    'ก.ย.',
+    'ต.ค.',
+    'พ.ย.',
+    'ธ.ค.',
   ];
+
+  List<Map<String, dynamic>> _history = [];
+  bool _isLoading = false;
+  DateTime? _lastUpdated;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  // Show whatever is already on disk immediately, no scanning/OCR.
+  Future<void> _loadSavedData() async {
+    final saved = await loadSavedSlips();
+    if (!mounted) return;
+    setState(() {
+      _history = _sortedByTime(saved);
+    });
+  }
+
+  // Wired to the refresh IconButton: scans for new slips, runs OCR,
+  // then refreshes the list from the updated slips.json.
+  Future<void> _handleRefresh() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Testing: cap this batch to the latest 10 unread slip images.
+      final updated = await processNewSlips(limit: 10);
+      if (!mounted) return;
+      setState(() {
+        _history = _sortedByTime(updated);
+        _lastUpdated = DateTime.now();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาดในการโหลดสลิป: $e')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<Map<String, dynamic>> _sortedByTime(List<Map<String, dynamic>> list) {
+    final copy = List<Map<String, dynamic>>.from(list);
+    copy.sort((a, b) {
+      final aTime =
+          DateTime.tryParse(a['txTime']?.toString() ?? '') ?? DateTime(0);
+      final bTime =
+          DateTime.tryParse(b['txTime']?.toString() ?? '') ?? DateTime(0);
+      return bTime.compareTo(aTime);
+    });
+    return copy;
+  }
+
+  String _formatThaiDate(DateTime dt) {
+    final buddhistYear = dt.year + 543;
+    final month = _thaiMonthsAbbr[dt.month - 1];
+    return '${dt.day} $month $buddhistYear';
+  }
+
+  double get _weeklyTotal {
+    double total = 0;
+    for (final item in _history) {
+      final amountStr = (item['amount'] ?? '').toString().replaceAll(',', '');
+      total += double.tryParse(amountStr) ?? 0;
+    }
+    return total;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +122,19 @@ class _DashboardTabState extends State<DashboardTab> {
               ),
             ),
             const SizedBox(height: 8),
-            ..._history.map(_buildHistoryTile),
+            if (_history.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                child: Text(
+                  'ยังไม่มีรายการ กดปุ่มรีเฟรชเพื่อสแกนสลิป',
+                  style: GoogleFonts.notoSansThai(
+                    fontSize: 13,
+                    color: Colors.black54,
+                  ),
+                ),
+              )
+            else
+              ..._history.map(_buildHistoryTile),
           ],
         ),
       ),
@@ -99,7 +198,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '฿300',
+                      '฿${_weeklyTotal.toStringAsFixed(0)}',
                       style: GoogleFonts.notoSansThai(
                         color: Colors.white,
                         fontSize: 40,
@@ -115,18 +214,36 @@ class _DashboardTabState extends State<DashboardTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'อัพเดทล่าสุด: 25 ก.ย. 2569',
-                style: GoogleFonts.notoSansThai(
-                  color: Colors.white70,
-                  fontSize: 13,
+              Expanded(
+                child: Text(
+                  _isLoading
+                      ? 'กรุณารอรูปโหลด'
+                      : 'อัพเดทล่าสุด: ${_lastUpdated != null ? _formatThaiDate(_lastUpdated!) : '-'}',
+                  style: GoogleFonts.notoSansThai(
+                    color: Colors.white70,
+                    fontSize: 13,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.refresh, color: Colors.white),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: _isLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : IconButton(
+                        onPressed: _handleRefresh,
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
               ),
             ],
           ),
@@ -135,20 +252,28 @@ class _DashboardTabState extends State<DashboardTab> {
     );
   }
 
-  Widget _buildHistoryTile(Map<String, String> item) {
+  Widget _buildHistoryTile(Map<String, dynamic> item) {
+    final rawAmount = (item['amount'] ?? '').toString();
+    final displayAmount = rawAmount == 'Not Found'
+        ? 'ไม่พบยอด'
+        : '-฿$rawAmount';
+
+    final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
+    final subtitle = txTime != null ? _formatThaiDate(txTime) : '-';
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: Colors.deepPurple.shade50,
         child: const Icon(Icons.receipt_long, color: Colors.deepPurple),
       ),
-      title: Text(item['title']!, style: GoogleFonts.notoSansThai()),
-      subtitle: Text(
-        item['subtitle']!,
-        style: GoogleFonts.notoSansThai(fontSize: 12),
+      title: Text(
+        item['Bank']?.toString() ?? '-',
+        style: GoogleFonts.notoSansThai(),
       ),
+      subtitle: Text(subtitle, style: GoogleFonts.notoSansThai(fontSize: 12)),
       trailing: Text(
-        item['amount']!,
+        displayAmount,
         style: GoogleFonts.notoSansThai(fontWeight: FontWeight.w600),
       ),
     );
