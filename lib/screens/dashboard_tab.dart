@@ -1,4 +1,3 @@
-// dashboard_tab.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../systems/preference.dart';
@@ -108,8 +107,24 @@ class _DashboardTabState extends State<DashboardTab> {
       _isLoading = true;
     });
 
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Expanded(child: Text('กำลังโหลดสลีป กรุณารอสักครู่')),
+            ],
+          ),
+        ),
+      ),
+    );
+
     try {
-      // for testing. 10 slips
       final updated = await processNewSlips(limit: 10);
       if (!mounted) return;
       setState(() {
@@ -122,10 +137,49 @@ class _DashboardTabState extends State<DashboardTab> {
         SnackBar(content: Text('เกิดข้อผิดพลาดในการโหลดสลิป: $e')),
       );
     } finally {
+      if (mounted) {
+        Navigator.of(context).pop();
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleClear() async {
+    if (_isLoading) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('ล้างประวัติรายการ'),
+        content: const Text('ต้องการลบรายการที่บันทึกไว้ทั้งหมดหรือไม่?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('ยกเลิก'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('ล้าง'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await clearSavedSlips();
       if (!mounted) return;
       setState(() {
-        _isLoading = false;
+        _history = [];
+        _lastUpdated = null;
       });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาดในการล้างรายการ: $e')),
+      );
     }
   }
 
@@ -315,6 +369,20 @@ class _DashboardTabState extends State<DashboardTab> {
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
                       ),
+              ),
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: IconButton(
+                  onPressed: _isLoading ? null : _handleClear,
+                  icon: const Icon(
+                    Icons.cleaning_services,
+                    color: Colors.white,
+                  ),
+                  disabledColor: Colors.white38,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
               ),
             ],
           ),
