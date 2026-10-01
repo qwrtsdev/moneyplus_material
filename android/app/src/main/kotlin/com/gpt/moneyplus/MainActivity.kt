@@ -1,4 +1,4 @@
-package com.example.moneyplus_material
+package com.gpt.moneyplus
 
 import io.flutter.embedding.android.FlutterActivity
 
