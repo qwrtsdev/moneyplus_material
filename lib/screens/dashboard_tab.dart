@@ -1,6 +1,7 @@
 // dashboard_tab.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
-
+import '../systems/preference.dart';
 import '../systems/receipt_recognition.dart';
 
 class DashboardTab extends StatefulWidget {
@@ -26,9 +27,12 @@ class _DashboardTabState extends State<DashboardTab> {
     'ธ.ค.',
   ];
 
+  final _budgetController = TextEditingController();
+
   List<Map<String, dynamic>> _history = [];
   bool _isLoading = false;
   DateTime? _lastUpdated;
+  double _budget = 0;
 
   @override
   void initState() {
@@ -36,17 +40,67 @@ class _DashboardTabState extends State<DashboardTab> {
     _loadSavedData();
   }
 
-  // Show whatever is already on disk immediately, no scanning/OCR.
+  @override
+  void dispose() {
+    _budgetController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadSavedData() async {
     final saved = await loadSavedSlips();
+    final savedBudget = await getData('budget');
     if (!mounted) return;
     setState(() {
       _history = _sortedByTime(saved);
+      _budget = double.tryParse(savedBudget ?? '') ?? 0;
     });
   }
 
-  // Wired to the refresh IconButton: scans for new slips, runs OCR,
-  // then refreshes the list from the updated slips.json.
+  Future<void> _editBudget() async {
+    final previous = _budget;
+    _budgetController.text = _budget > 0 ? _budget.toStringAsFixed(2) : '';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('กรอกจำนวนเงิน'),
+        content: TextField(
+          controller: _budgetController,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'กรอกจำนวนเงิน',
+            hintText: '0.00',
+            prefixText: '฿ ',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              _budget = double.tryParse(value.trim().replaceAll(',', '')) ?? 0;
+            });
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('ยกเลิก'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('ตกลง'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (confirmed == true) {
+      await saveData('budget', _budget.toString());
+    } else {
+      setState(() => _budget = previous);
+    }
+  }
+
   Future<void> _handleRefresh() async {
     if (_isLoading) return;
 
@@ -55,7 +109,7 @@ class _DashboardTabState extends State<DashboardTab> {
     });
 
     try {
-      // Testing: cap this batch to the latest 10 unread slip images.
+      // for testing. 10 slips
       final updated = await processNewSlips(limit: 10);
       if (!mounted) return;
       setState(() {
@@ -102,23 +156,29 @@ class _DashboardTabState extends State<DashboardTab> {
     return total;
   }
 
+  double get _overBudget {
+    if (_budget <= 0 || _weeklyTotal <= _budget) return 0;
+    return _weeklyTotal - _budget;
+  }
+
+  double get _budgetProgress {
+    if (_budget <= 0) return 0;
+    return (_weeklyTotal / _budget).clamp(0.0, 1.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('หน้าหลัก')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20.0),
           children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
             _buildSummaryCard(),
             const SizedBox(height: 24),
             Text(
               'ประวัติรายการ',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             if (_history.isEmpty)
@@ -126,10 +186,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 padding: const EdgeInsets.symmetric(vertical: 24.0),
                 child: Text(
                   'ยังไม่มีรายการ กดปุ่มรีเฟรชเพื่อสแกนสลิป',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               )
             else
@@ -137,25 +194,6 @@ class _DashboardTabState extends State<DashboardTab> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildProfileHeader() {
-    return Row(
-      children: [
-        const CircleAvatar(
-          radius: 20,
-          backgroundImage: NetworkImage('https://example.com/avatar.png'),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          'ชื่อผู้ใช้งาน',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 
@@ -175,11 +213,28 @@ class _DashboardTabState extends State<DashboardTab> {
               SizedBox(
                 width: 96,
                 height: 96,
-                child: CircularProgressIndicator(
-                  value: 0.6,
-                  strokeWidth: 8,
-                  backgroundColor: Colors.white24,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CircularProgressIndicator(
+                      value: _budgetProgress,
+                      strokeWidth: 8,
+                      backgroundColor: Colors.white24,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        '${(_budgetProgress * 100).round()}%',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 20),
@@ -189,22 +244,42 @@ class _DashboardTabState extends State<DashboardTab> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'สัปดาห์นี้คุณใช้ไปแล้ว',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      _overBudget > 0
+                          ? 'คุณใช้เกินงบไปแล้ว'
+                          : 'สัปดาห์นี้คุณใช้ไปแล้ว',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '฿${_weeklyTotal.toStringAsFixed(0)}',
+                      _overBudget > 0
+                          ? '-฿${_overBudget.toStringAsFixed(0)}'
+                          : '฿${_weeklyTotal.toStringAsFixed(0)}',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: _overBudget > 0
+                            ? Colors.red.shade200
+                            : Colors.white,
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+                height: 96,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: IconButton(
+                      onPressed: _editBudget,
+                      icon: const Icon(Icons.edit, color: Colors.white),
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -218,10 +293,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   _isLoading
                       ? 'กรุณารอรูปโหลด'
                       : 'อัพเดทล่าสุด: ${_lastUpdated != null ? _formatThaiDate(_lastUpdated!) : '-'}',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ),
               SizedBox(
@@ -251,6 +323,48 @@ class _DashboardTabState extends State<DashboardTab> {
     );
   }
 
+  void _showSlipImage(Map<String, dynamic> item) {
+    final imagePath = item['imagePath']?.toString() ?? '';
+    final rawAmount = (item['amount'] ?? '').toString();
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: InteractiveViewer(
+                child: Image.file(
+                  File(imagePath),
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Text('ไม่พบไฟล์รูปภาพ'),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                rawAmount == 'Not Found'
+                    ? 'ไม่พบยอด'
+                    : 'ยอดที่อ่านได้: ฿$rawAmount',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ปิด'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHistoryTile(Map<String, dynamic> item) {
     final rawAmount = (item['amount'] ?? '').toString();
     final displayAmount = rawAmount == 'Not Found'
@@ -262,14 +376,12 @@ class _DashboardTabState extends State<DashboardTab> {
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      onTap: () => _showSlipImage(item),
       leading: CircleAvatar(
         backgroundColor: Colors.deepPurple.shade50,
         child: const Icon(Icons.receipt_long, color: Colors.deepPurple),
       ),
-      title: Text(
-        item['Bank']?.toString() ?? '-',
-        style: TextStyle(),
-      ),
+      title: Text(item['Bank']?.toString() ?? '-', style: TextStyle()),
       subtitle: Text(subtitle, style: TextStyle(fontSize: 12)),
       trailing: Text(
         displayAmount,
