@@ -6,7 +6,6 @@ class PlanTab extends StatefulWidget {
 }
 
 class _PlanTabState extends State<PlanTab> {
-
   @override
   void initState() {
     super.initState();
@@ -15,14 +14,8 @@ class _PlanTabState extends State<PlanTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plan'),
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to the Plan!',
-        ),
-      ),
+      appBar: AppBar(title: const Text('สมดุลเงิน')),
+      body: Center(child: Text('Welcome to the Plan!')),
     );
   }
 }

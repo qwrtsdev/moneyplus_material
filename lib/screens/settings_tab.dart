@@ -6,7 +6,6 @@ class SettingsTab extends StatefulWidget {
 }
 
 class _SettingsTabState extends State<SettingsTab> {
-
   @override
   void initState() {
     super.initState();
@@ -15,14 +14,8 @@ class _SettingsTabState extends State<SettingsTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to the Settings!',
-        ),
-      ),
+      appBar: AppBar(title: const Text('ตั้งค่า')),
+      body: Center(child: Text('Welcome to the Settings!')),
     );
   }
 }
