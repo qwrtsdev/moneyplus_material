@@ -5,7 +5,9 @@ import 'bill_tab.dart';
 import 'settings_tab.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.onLocaleChanged});
+
+  final ValueChanged<Locale>? onLocaleChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -25,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       DashboardTab(),
       PlanTab(),
       BillTab(),
-      SettingsTab(),
+      SettingsTab(onLocaleChanged: widget.onLocaleChanged),
     ];
 
     return Scaffold(
