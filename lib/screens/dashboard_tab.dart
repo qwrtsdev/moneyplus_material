@@ -4,6 +4,7 @@ import '../systems/preference.dart';
 import '../systems/receipt_recognition.dart';
 import '../systems/slip_storage.dart';
 import '../systems/thai_date.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -206,7 +207,7 @@ class _DashboardTabState extends State<DashboardTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('หน้าหลัก')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.dashboard_appbar)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20.0),
