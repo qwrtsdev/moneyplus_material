@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 import 'package:moneyplus_material/screens/home_screen.dart';
 import 'package:moneyplus_material/systems/slip_storage.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -31,7 +32,14 @@ void main() {
       }
     }
 
-    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('th'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: HomeScreen(),
+      ),
+    );
     await settle();
 
     await tester.runAsync(
@@ -45,7 +53,7 @@ void main() {
       ]),
     );
     await settle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.text('แผน'));
     await settle();
     expect(find.text('พบสลีปใหม่ 1 รายการ'), findsOneWidget);
     expect(find.byIcon(Icons.refresh), findsNothing);

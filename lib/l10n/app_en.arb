@@ -1,4 +1,152 @@
 {
   "@@locale": "en",
-  "dashboard_appbar": "Dashboard"
+
+  "nav_dashboard": "Dashboard",
+  "nav_plan": "Plan",
+  "nav_bill": "Bill",
+  "nav_settings": "Settings",
+
+  "common_cancel": "Cancel",
+  "common_ok": "OK",
+  "common_close": "Close",
+  "common_create": "Create",
+  "common_delete": "Delete",
+  "common_clear": "Clear",
+  "common_no_items": "No items yet",
+  "common_amount_not_found": "Amount not found",
+
+  "dashboard_appbar": "Dashboard",
+  "dashboard_enter_amount": "Enter amount",
+  "dashboard_loading_slips": "Loading slips, please wait",
+  "dashboard_load_error": "Failed to load slips: {error}",
+  "@dashboard_load_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "dashboard_clear_title": "Clear history",
+  "dashboard_clear_confirm": "Delete all saved items?",
+  "dashboard_clear_error": "Failed to clear items: {error}",
+  "@dashboard_clear_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "dashboard_history": "History",
+  "dashboard_history_empty": "No items yet. Tap scan to load your slips.",
+  "dashboard_over_budget": "You're over budget by",
+  "dashboard_spent_this_week": "Spent this week",
+  "dashboard_waiting_images": "Waiting for images to load",
+  "dashboard_last_updated": "Last updated: {date}",
+  "@dashboard_last_updated": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "dashboard_image_not_found": "Image file not found",
+  "dashboard_amount_read": "Amount read: ฿{amount}",
+  "@dashboard_amount_read": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "plan_appbar": "Money Balance",
+  "plan_pick_slip": "Choose a slip to assign to a goal",
+  "plan_create_goal_first": "Please create a goal first",
+  "plan_which_goal": "Which goal is this slip for?",
+  "plan_slip_added": "Added slip to goal \"{name}\"",
+  "@plan_slip_added": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "plan_new_slips": "{count, plural, =1{1 new slip found} other{{count} new slips found}}",
+  "@plan_new_slips": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "plan_new_slips_subtitle": "Choose which goal each one paid for",
+  "plan_add_goal": "Add goal",
+  "plan_new_goal_title": "Create new goal",
+  "plan_goal_name": "Goal name",
+  "plan_goal_name_error": "Please enter a name",
+  "plan_goal_target": "Target amount (THB)",
+  "plan_goal_target_error": "Please enter a valid amount",
+  "plan_delete_goal": "Delete goal",
+  "plan_delete_goal_confirm": "Delete goal \"{name}\"?",
+  "@plan_delete_goal_confirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "plan_goal_reached": "Goal reached",
+  "plan_remaining": "฿{amount} to go",
+  "@plan_remaining": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "plan_payments": "Payments ({count})",
+  "@plan_payments": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "bill_appbar": "Split Bill",
+  "bill_phone_label": "PromptPay phone number",
+  "bill_phone_error": "Please enter phone number",
+  "bill_amount_label": "Amount (THB)",
+  "bill_amount_error": "Please enter amount",
+  "bill_amount_invalid": "Please enter a valid number",
+  "bill_split_title": "Split Bill",
+  "bill_split_subtitle": "Split the bill equally between people",
+  "bill_people_label": "Number of people",
+  "bill_people_count": "{count} people",
+  "@bill_people_count": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bill_per_person": "Amount per person:",
+  "bill_generate_qr": "Generate QR Code",
+  "bill_scan_to_pay": "Scan QR Code to pay",
+  "bill_qr_amount": "Amount: ฿{amount}",
+  "@bill_qr_amount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "bill_split_summary": "Split among {count} people (total: ฿{total})",
+  "@bill_split_summary": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "bill_sharing": "Creating...",
+  "bill_share_qr": "Share QR Code",
+  "bill_share_text": "PromptPay QR for ฿{amount}",
+  "@bill_share_text": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "bill_share_text_split": "PromptPay QR for ฿{amount} (Split among {count} people)",
+  "@bill_share_text_split": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "bill_share_error": "Failed to share QR code: {error}",
+  "@bill_share_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "settings_appbar": "Settings"
 }

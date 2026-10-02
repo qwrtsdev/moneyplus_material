@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:moneyplus_material/screens/dashboard_tab.dart';
 
@@ -10,7 +11,14 @@ void main() {
     testWidgets(
       'tapping refresh shows the loading state then settles on a result',
       (WidgetTester tester) async {
-        await tester.pumpWidget(const MaterialApp(home: DashboardTab()));
+        await tester.pumpWidget(
+          const MaterialApp(
+            locale: Locale('th'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: DashboardTab(),
+          ),
+        );
         await tester.pumpAndSettle();
 
         expect(find.text('ประวัติรายการ'), findsOneWidget);
@@ -44,7 +52,14 @@ void main() {
     testWidgets('summary amount updates when new history is loaded', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const MaterialApp(home: DashboardTab()));
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('th'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DashboardTab(),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Capture the summary figure before refreshing.

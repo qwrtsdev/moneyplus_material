@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 import 'package:moneyplus_material/screens/plan_tab.dart';
 import 'package:moneyplus_material/systems/slip_storage.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -53,7 +54,14 @@ void main() {
   }
 
   testWidgets('create a goal and assign a detected slip to it', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: PlanTab()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('th'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PlanTab(),
+      ),
+    );
     await settle(tester);
 
     expect(find.text('พบสลีปใหม่ 1 รายการ'), findsOneWidget);
@@ -83,7 +91,14 @@ void main() {
   });
 
   testWidgets('goal form rejects empty input', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: PlanTab()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('th'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PlanTab(),
+      ),
+    );
     await settle(tester);
 
     await tester.tap(find.text('เพิ่มเป้าหมาย'));
@@ -91,8 +106,8 @@ void main() {
     await tester.tap(find.text('สร้าง'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Please enter a name'), findsOneWidget);
-    expect(find.text('Please enter a valid amount'), findsOneWidget);
+    expect(find.text('กรุณากรอกชื่อเป้าหมาย'), findsOneWidget);
+    expect(find.text('กรุณากรอกจำนวนเงินให้ถูกต้อง'), findsOneWidget);
   });
 
   testWidgets('tapping a goal shows its detail and it can be deleted', (
@@ -111,7 +126,14 @@ void main() {
       ]),
     );
 
-    await tester.pumpWidget(const MaterialApp(home: PlanTab()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('th'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PlanTab(),
+      ),
+    );
     await settle(tester);
 
     expect(find.textContaining('พบสลีปใหม่'), findsNothing);
@@ -132,7 +154,14 @@ void main() {
   });
 
   testWidgets('detected slips follow the saved slip list', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: PlanTab()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('th'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PlanTab(),
+      ),
+    );
     await settle(tester);
 
     expect(find.text('พบสลีปใหม่ 1 รายการ'), findsOneWidget);

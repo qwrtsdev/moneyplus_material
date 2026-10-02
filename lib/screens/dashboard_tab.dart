@@ -49,16 +49,17 @@ class _DashboardTabState extends State<DashboardTab> {
     final previous = _budget;
     _budgetController.text = _budget > 0 ? _budget.toStringAsFixed(2) : '';
 
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('กรอกจำนวนเงิน'),
+        title: Text(l10n.dashboard_enter_amount),
         content: TextField(
           controller: _budgetController,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'กรอกจำนวนเงิน',
+          decoration: InputDecoration(
+            labelText: l10n.dashboard_enter_amount,
             hintText: '0.00',
             prefixText: '฿ ',
             border: OutlineInputBorder(),
@@ -72,11 +73,11 @@ class _DashboardTabState extends State<DashboardTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ยกเลิก'),
+            child: Text(l10n.common_cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('ตกลง'),
+            child: Text(l10n.common_ok),
           ),
         ],
       ),
@@ -93,6 +94,7 @@ class _DashboardTabState extends State<DashboardTab> {
   Future<void> _handleRefresh() async {
     if (_isLoading) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
     });
@@ -100,14 +102,14 @@ class _DashboardTabState extends State<DashboardTab> {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const PopScope(
+      builder: (context) => PopScope(
         canPop: false,
         child: AlertDialog(
           content: Row(
             children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 20),
-              Expanded(child: Text('กำลังโหลดสลีป กรุณารอสักครู่')),
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Expanded(child: Text(l10n.dashboard_loading_slips)),
             ],
           ),
         ),
@@ -123,9 +125,9 @@ class _DashboardTabState extends State<DashboardTab> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาดในการโหลดสลิป: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.dashboard_load_error('$e'))));
     } finally {
       if (mounted) {
         Navigator.of(context).pop();
@@ -139,19 +141,20 @@ class _DashboardTabState extends State<DashboardTab> {
   Future<void> _handleClear() async {
     if (_isLoading) return;
 
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ล้างประวัติรายการ'),
-        content: const Text('ต้องการลบรายการที่บันทึกไว้ทั้งหมดหรือไม่?'),
+        title: Text(l10n.dashboard_clear_title),
+        content: Text(l10n.dashboard_clear_confirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ยกเลิก'),
+            child: Text(l10n.common_cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('ล้าง'),
+            child: Text(l10n.common_clear),
           ),
         ],
       ),
@@ -167,9 +170,9 @@ class _DashboardTabState extends State<DashboardTab> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('เกิดข้อผิดพลาดในการล้างรายการ: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.dashboard_clear_error('$e'))));
     }
   }
 
@@ -206,8 +209,10 @@ class _DashboardTabState extends State<DashboardTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.dashboard_appbar)),
+      appBar: AppBar(title: Text(l10n.dashboard_appbar)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20.0),
@@ -215,7 +220,7 @@ class _DashboardTabState extends State<DashboardTab> {
             _buildSummaryCard(),
             const SizedBox(height: 24),
             Text(
-              'ประวัติรายการ',
+              l10n.dashboard_history,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -223,7 +228,7 @@ class _DashboardTabState extends State<DashboardTab> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24.0),
                 child: Text(
-                  'ยังไม่มีรายการ กรุณากดสแกนสลีปเพื่อเริ่มต้น',
+                  l10n.dashboard_history_empty,
                   style: TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               )
@@ -236,6 +241,9 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Widget _buildSummaryCard() {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20.0),
@@ -283,8 +291,8 @@ class _DashboardTabState extends State<DashboardTab> {
                   children: [
                     Text(
                       _overBudget > 0
-                          ? 'คุณใช้เกินงบไปแล้ว'
-                          : 'สัปดาห์นี้คุณใช้ไปแล้ว',
+                          ? l10n.dashboard_over_budget
+                          : l10n.dashboard_spent_this_week,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
@@ -329,8 +337,12 @@ class _DashboardTabState extends State<DashboardTab> {
               Expanded(
                 child: Text(
                   _isLoading
-                      ? 'กรุณารอรูปโหลด'
-                      : 'อัพเดทล่าสุด: ${_lastUpdated != null ? formatThaiDate(_lastUpdated!) : '-'}',
+                      ? l10n.dashboard_waiting_images
+                      : l10n.dashboard_last_updated(
+                          _lastUpdated != null
+                              ? formatDate(_lastUpdated!, locale)
+                              : '-',
+                        ),
                   style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ),
@@ -378,6 +390,7 @@ class _DashboardTabState extends State<DashboardTab> {
   void _showSlipImage(Map<String, dynamic> item) {
     final imagePath = item['imagePath']?.toString() ?? '';
     final rawAmount = (item['amount'] ?? '').toString();
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog<void>(
       context: context,
@@ -391,9 +404,9 @@ class _DashboardTabState extends State<DashboardTab> {
                 child: Image.file(
                   File(imagePath),
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: Text('ไม่พบไฟล์รูปภาพ'),
+                  errorBuilder: (context, error, stackTrace) => Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Text(l10n.dashboard_image_not_found),
                   ),
                 ),
               ),
@@ -402,14 +415,14 @@ class _DashboardTabState extends State<DashboardTab> {
               padding: const EdgeInsets.all(12.0),
               child: Text(
                 rawAmount == 'Not Found'
-                    ? 'ไม่พบยอด'
-                    : 'ยอดที่อ่านได้: ฿$rawAmount',
+                    ? l10n.common_amount_not_found
+                    : l10n.dashboard_amount_read(rawAmount),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ปิด'),
+              child: Text(l10n.common_close),
             ),
           ],
         ),
@@ -420,11 +433,13 @@ class _DashboardTabState extends State<DashboardTab> {
   Widget _buildHistoryTile(Map<String, dynamic> item) {
     final rawAmount = (item['amount'] ?? '').toString();
     final displayAmount = rawAmount == 'Not Found'
-        ? 'ไม่พบยอด'
+        ? AppLocalizations.of(context)!.common_amount_not_found
         : '-฿$rawAmount';
 
     final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
-    final subtitle = txTime != null ? formatThaiDate(txTime) : '-';
+    final subtitle = txTime != null
+        ? formatDate(txTime, Localizations.localeOf(context))
+        : '-';
 
     return ListTile(
       contentPadding: EdgeInsets.zero,

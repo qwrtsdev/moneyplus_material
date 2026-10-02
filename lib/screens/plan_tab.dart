@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 import '../systems/plan_storage.dart';
 import '../systems/slip_storage.dart';
 import '../systems/thai_date.dart';
@@ -88,11 +89,14 @@ class _PlanTabState extends State<PlanTab> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: Text(
-                'เลือกสลีปที่ต้องการจัดเข้าเป้าหมาย',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                AppLocalizations.of(context)!.plan_pick_slip,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             ..._pendingSlips.map((slip) => _buildPendingTile(context, slip)),
@@ -115,7 +119,9 @@ class _PlanTabState extends State<PlanTab> {
       ),
       title: Text(slip['Bank']?.toString() ?? '-'),
       subtitle: Text(
-        txTime != null ? formatThaiDate(txTime) : '-',
+        txTime != null
+            ? formatDate(txTime, Localizations.localeOf(context))
+            : '-',
         style: TextStyle(fontSize: 12),
       ),
       trailing: Text(
@@ -127,17 +133,18 @@ class _PlanTabState extends State<PlanTab> {
   }
 
   Future<void> _assignSlip(Map<String, dynamic> slip) async {
+    final l10n = AppLocalizations.of(context)!;
     if (_goals.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('กรุณาสร้างเป้าหมายก่อน')));
+      ).showSnackBar(SnackBar(content: Text(l10n.plan_create_goal_first)));
       return;
     }
 
     final goal = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('สลีปนี้เป็นการจ่ายของเป้าหมายไหน'),
+        title: Text(l10n.plan_which_goal),
         children: _goals
             .map(
               (goal) => SimpleDialogOption(
@@ -162,14 +169,14 @@ class _PlanTabState extends State<PlanTab> {
     await _load();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('เพิ่มสลีปเข้าเป้าหมาย "${goal['name']}" แล้ว')),
+      SnackBar(content: Text(l10n.plan_slip_added('${goal['name']}'))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('สมดุลเงิน')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.plan_appbar)),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -192,6 +199,8 @@ class _PlanTabState extends State<PlanTab> {
   }
 
   Widget _buildPendingBanner() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Card(
       elevation: 0,
       color: Colors.deepPurple.shade50,
@@ -201,8 +210,8 @@ class _PlanTabState extends State<PlanTab> {
           Icons.notifications_active,
           color: Colors.deepPurple,
         ),
-        title: Text('พบสลีปใหม่ ${_pendingSlips.length} รายการ'),
-        subtitle: const Text('เลือกว่าเป็นการจ่ายของเป้าหมายไหน'),
+        title: Text(l10n.plan_new_slips(_pendingSlips.length)),
+        subtitle: Text(l10n.plan_new_slips_subtitle),
         trailing: const Icon(Icons.chevron_right),
         onTap: _showPendingSheet,
       ),
@@ -286,13 +295,13 @@ class _PlanTabState extends State<PlanTab> {
       ),
       child: InkWell(
         onTap: _createGoal,
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add, size: 40, color: Colors.deepPurple),
-              SizedBox(height: 4),
-              Text('เพิ่มเป้าหมาย'),
+              const Icon(Icons.add, size: 40, color: Colors.deepPurple),
+              const SizedBox(height: 4),
+              Text(AppLocalizations.of(context)!.plan_add_goal),
             ],
           ),
         ),
@@ -329,8 +338,10 @@ class _NewGoalDialogState extends State<_NewGoalDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
-      title: const Text('สร้างเป้าหมายใหม่'),
+      title: Text(l10n.plan_new_goal_title),
       content: Form(
         key: _formKey,
         child: Column(
@@ -339,13 +350,13 @@ class _NewGoalDialogState extends State<_NewGoalDialog> {
             TextFormField(
               controller: _nameController,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'ชื่อเป้าหมาย',
+              decoration: InputDecoration(
+                labelText: l10n.plan_goal_name,
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
+                  return l10n.plan_goal_name_error;
                 }
                 return null;
               },
@@ -356,15 +367,15 @@ class _NewGoalDialogState extends State<_NewGoalDialog> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: 'จำนวนเงินเป้าหมาย (บาท)',
+              decoration: InputDecoration(
+                labelText: l10n.plan_goal_target,
                 prefixText: '฿ ',
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 final amount = double.tryParse(value?.trim() ?? '');
                 if (amount == null || amount <= 0) {
-                  return 'Please enter a valid amount';
+                  return l10n.plan_goal_target_error;
                 }
                 return null;
               },
@@ -375,9 +386,9 @@ class _NewGoalDialogState extends State<_NewGoalDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('ยกเลิก'),
+          child: Text(l10n.common_cancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('สร้าง')),
+        FilledButton(onPressed: _submit, child: Text(l10n.common_create)),
       ],
     );
   }
@@ -389,20 +400,21 @@ class _GoalDetailDialog extends StatelessWidget {
   final Map<String, dynamic> goal;
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ลบเป้าหมาย'),
-        content: Text('ต้องการลบเป้าหมาย "${goal['name']}" หรือไม่?'),
+        title: Text(l10n.plan_delete_goal),
+        content: Text(l10n.plan_delete_goal_confirm('${goal['name']}')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ยกเลิก'),
+            child: Text(l10n.common_cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('ลบ'),
+            child: Text(l10n.common_delete),
           ),
         ],
       ),
@@ -419,6 +431,7 @@ class _GoalDetailDialog extends StatelessWidget {
     final saved = goalSaved(goal);
     final target = goalTarget(goal);
     final payments = goalPayments(goal);
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       child: Padding(
@@ -466,23 +479,23 @@ class _GoalDetailDialog extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               saved >= target
-                  ? 'ครบตามเป้าหมายแล้ว'
-                  : 'เหลืออีก ฿${_money(target - saved)}',
+                  ? l10n.plan_goal_reached
+                  : l10n.plan_remaining(_money(target - saved)),
               style: TextStyle(fontSize: 13, color: Colors.black54),
             ),
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'รายการที่จ่าย (${payments.length})',
+                l10n.plan_payments(payments.length),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
             Flexible(
               child: payments.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Text('ยังไม่มีรายการ'),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(l10n.common_no_items),
                     )
                   : ListView(
                       shrinkWrap: true,
@@ -509,13 +522,13 @@ class _GoalDetailDialog extends StatelessWidget {
                 TextButton.icon(
                   onPressed: () => _confirmDelete(context),
                   icon: const Icon(Icons.delete_outline),
-                  label: const Text('ลบเป้าหมาย'),
+                  label: Text(l10n.plan_delete_goal),
                   style: TextButton.styleFrom(foregroundColor: Colors.red),
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('ปิด'),
+                  child: Text(l10n.common_close),
                 ),
               ],
             ),

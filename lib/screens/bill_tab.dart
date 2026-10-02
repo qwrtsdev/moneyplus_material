@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:thai_promptpay_flutter/thai_promptpay_flutter.dart';
+import 'package:moneyplus_material/l10n/app_localizations.dart';
 import 'package:moneyplus_material/systems/preference.dart';
 
 class BillTab extends StatefulWidget {
@@ -16,13 +17,13 @@ class BillTab extends StatefulWidget {
 class _BillTabState extends State<BillTab> {
   final _formKey = GlobalKey<FormState>();
   final _screenshotController = ScreenshotController();
-  
+
   late TextEditingController _phoneNumberController;
   late TextEditingController _amountController;
 
   String? _targetPhoneNumber;
   int? _amountSatang;
-  
+
   bool _isSplitBill = false;
   int _splitPeopleCount = 2;
   bool _isSharing = false;
@@ -64,7 +65,9 @@ class _BillTabState extends State<BillTab> {
     saveData('phoneNumber', phone);
 
     final totalAmount = double.tryParse(_amountController.text.trim()) ?? 0.0;
-    final finalAmount = _isSplitBill ? (totalAmount / _splitPeopleCount) : totalAmount;
+    final finalAmount = _isSplitBill
+        ? (totalAmount / _splitPeopleCount)
+        : totalAmount;
 
     setState(() {
       _targetPhoneNumber = phone;
@@ -77,6 +80,7 @@ class _BillTabState extends State<BillTab> {
   Future<void> _shareQrCode() async {
     if (_isSharing) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isSharing = true);
 
     try {
@@ -94,18 +98,18 @@ class _BillTabState extends State<BillTab> {
 
       final totalAmount = double.tryParse(_amountController.text.trim()) ?? 0.0;
       final shareText = _isSplitBill
-          ? 'PromptPay QR for ฿${((_amountSatang ?? 0) / 100).toStringAsFixed(2)} (Split among $_splitPeopleCount people)'
-          : 'PromptPay QR for ฿${totalAmount.toStringAsFixed(2)}';
+          ? l10n.bill_share_text_split(
+              ((_amountSatang ?? 0) / 100).toStringAsFixed(2),
+              _splitPeopleCount,
+            )
+          : l10n.bill_share_text(totalAmount.toStringAsFixed(2));
 
-      await Share.shareXFiles(
-        [XFile(imagePath)],
-        text: shareText,
-      );
+      await Share.shareXFiles([XFile(imagePath)], text: shareText);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to share QR code: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.bill_share_error('$e'))));
       }
     } finally {
       if (mounted) {
@@ -117,12 +121,12 @@ class _BillTabState extends State<BillTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalAmountDouble = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final l10n = AppLocalizations.of(context)!;
+    final totalAmountDouble =
+        double.tryParse(_amountController.text.trim()) ?? 0.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('หารบิล'),
-      ),
+      appBar: AppBar(title: Text(l10n.bill_appbar)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(15.0),
         child: Form(
@@ -146,16 +150,16 @@ class _BillTabState extends State<BillTab> {
                     children: [
                       TextFormField(
                         controller: _phoneNumberController,
-                        decoration: const InputDecoration(
-                          labelText: 'เบอร์โทรศัพท์พร้อมเพย์',
+                        decoration: InputDecoration(
+                          labelText: l10n.bill_phone_label,
                           hintText: '0812345678',
-                          prefixIcon: Icon(Icons.phone_android),
-                          border: OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.phone_android),
+                          border: const OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter phone number';
+                            return l10n.bill_phone_error;
                           }
                           return null;
                         },
@@ -163,32 +167,34 @@ class _BillTabState extends State<BillTab> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _amountController,
-                        decoration: const InputDecoration(
-                          labelText: 'ยอดเงิน (บาท)',
+                        decoration: InputDecoration(
+                          labelText: l10n.bill_amount_label,
                           hintText: '0.00',
-                          prefixIcon: Icon(Icons.attach_money),
-                          border: OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.attach_money),
+                          border: const OutlineInputBorder(),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         onChanged: (_) {
                           if (_isSplitBill) setState(() {});
                         },
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter amount';
+                            return l10n.bill_amount_error;
                           }
                           if (double.tryParse(value.trim()) == null) {
-                            return 'Please enter a valid number';
+                            return l10n.bill_amount_invalid;
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 12),
-                      
+
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('หารบิล'),
-                        subtitle: const Text('หารบิลเท่ากันระหว่างหลายคน'),
+                        title: Text(l10n.bill_split_title),
+                        subtitle: Text(l10n.bill_split_subtitle),
                         value: _isSplitBill,
                         onChanged: (value) {
                           setState(() {
@@ -201,15 +207,17 @@ class _BillTabState extends State<BillTab> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<int>(
                           value: _splitPeopleCount,
-                          decoration: const InputDecoration(
-                            labelText: 'จำนวนคน',
-                            prefixIcon: Icon(Icons.group),
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n.bill_people_label,
+                            prefixIcon: const Icon(Icons.group),
+                            border: const OutlineInputBorder(),
                           ),
-                          items: List.generate(9, (index) => index + 2).map((count) {
+                          items: List.generate(9, (index) => index + 2).map((
+                            count,
+                          ) {
                             return DropdownMenuItem<int>(
                               value: count,
-                              child: Text('$count คน'),
+                              child: Text(l10n.bill_people_count(count)),
                             );
                           }).toList(),
                           onChanged: (value) {
@@ -225,14 +233,15 @@ class _BillTabState extends State<BillTab> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer.withAlpha(100),
+                              color: theme.colorScheme.primaryContainer
+                                  .withAlpha(100),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'จำนวนเงินต่อคน:',
+                                  l10n.bill_per_person,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -254,7 +263,7 @@ class _BillTabState extends State<BillTab> {
                       FilledButton.icon(
                         onPressed: _generateQrCode,
                         icon: const Icon(Icons.qr_code_2),
-                        label: const Text('สร้าง QR Code'),
+                        label: Text(l10n.bill_generate_qr),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
@@ -265,7 +274,8 @@ class _BillTabState extends State<BillTab> {
               ),
               const SizedBox(height: 24),
 
-              if (_targetPhoneNumber != null && _targetPhoneNumber!.isNotEmpty) ...[
+              if (_targetPhoneNumber != null &&
+                  _targetPhoneNumber!.isNotEmpty) ...[
                 Screenshot(
                   controller: _screenshotController,
                   child: Card(
@@ -280,7 +290,7 @@ class _BillTabState extends State<BillTab> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'เเสกน QR Code เพื่อชำระเงิน',
+                            l10n.bill_scan_to_pay,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -318,7 +328,9 @@ class _BillTabState extends State<BillTab> {
                           if (_amountSatang != null) ...[
                             const SizedBox(height: 6),
                             Text(
-                              'จำนวนเงิน: ฿${(_amountSatang! / 100).toStringAsFixed(2)}',
+                              l10n.bill_qr_amount(
+                                (_amountSatang! / 100).toStringAsFixed(2),
+                              ),
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -327,7 +339,10 @@ class _BillTabState extends State<BillTab> {
                             if (_isSplitBill) ...[
                               const SizedBox(height: 2),
                               Text(
-                                'หารระหว่าง $_splitPeopleCount คน (รวม: ฿${totalAmountDouble.toStringAsFixed(2)})',
+                                l10n.bill_split_summary(
+                                  _splitPeopleCount,
+                                  totalAmountDouble.toStringAsFixed(2),
+                                ),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -349,7 +364,9 @@ class _BillTabState extends State<BillTab> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.share),
-                  label: Text(_isSharing ? 'กำลังสร้าง...' : 'แชร์ QR Code'),
+                  label: Text(
+                    _isSharing ? l10n.bill_sharing : l10n.bill_share_qr,
+                  ),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(

@@ -20,7 +20,9 @@ class _SettingsTabState extends State<SettingsTab> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ตั้งค่า')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.settings_appbar),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
