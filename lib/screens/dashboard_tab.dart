@@ -24,10 +24,12 @@ class _DashboardTabState extends State<DashboardTab> {
   void initState() {
     super.initState();
     _loadSavedData();
+    slipsRevision.addListener(_loadSavedData);
   }
 
   @override
   void dispose() {
+    slipsRevision.removeListener(_loadSavedData);
     _budgetController.dispose();
     super.dispose();
   }

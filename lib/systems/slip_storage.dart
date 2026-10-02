@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+
+/// Bumped whenever `slips.json` is rewritten or deleted, so screens showing
+/// slips (dashboard, plan) can reload instead of going stale.
+final ValueNotifier<int> slipsRevision = ValueNotifier<int>(0);
 
 Future<File> _slipsFile() async {
   final appDir = await getApplicationDocumentsDirectory();
@@ -28,6 +33,7 @@ Future<List<Map<String, dynamic>>> loadSavedSlips() async {
 Future<void> saveSlips(List<Map<String, dynamic>> records) async {
   final jsonFile = await _slipsFile();
   await jsonFile.writeAsString(jsonEncode(records), mode: FileMode.write);
+  slipsRevision.value++;
 }
 
 /// Deletes `slips.json`. The slip images themselves are left untouched, so
@@ -38,4 +44,11 @@ Future<void> clearSavedSlips() async {
   if (await jsonFile.exists()) {
     await jsonFile.delete();
   }
+  slipsRevision.value++;
+}
+
+/// Parses a slip's `amount` (e.g. "1,500.00") into a number, or null when
+/// OCR found nothing ("Not Found").
+double? amountOf(Map<String, dynamic> slip) {
+  return double.tryParse((slip['amount'] ?? '').toString().replaceAll(',', ''));
 }
