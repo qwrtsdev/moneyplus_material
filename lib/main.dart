@@ -18,7 +18,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale? _locale;
+  static const _defaultLanguage = 'default';
+  String _languagePreference = _defaultLanguage;
 
   @override
   void initState() {
@@ -27,27 +28,36 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadLocale() async {
-    final languageCode = await getData('locale');
-    if (!mounted || languageCode == null) return;
+    final languagePreference = await getData('locale');
+    if (!mounted || languagePreference == null) return;
 
-    final matchingLocales = AppLocalizations.supportedLocales.where(
-      (locale) => locale.languageCode == languageCode,
+    final isSupportedLanguage = AppLocalizations.supportedLocales.any(
+      (locale) => locale.languageCode == languagePreference,
     );
-    if (matchingLocales.isNotEmpty) {
-      setState(() => _locale = matchingLocales.first);
+    if (languagePreference == _defaultLanguage || isSupportedLanguage) {
+      setState(() => _languagePreference = languagePreference);
     }
   }
 
-  void _setLocale(Locale locale) {
-    setState(() => _locale = locale);
-    unawaited(saveData('locale', locale.languageCode));
+  void _setLanguagePreference(String languagePreference) {
+    setState(() => _languagePreference = languagePreference);
+    unawaited(saveData('locale', languagePreference));
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MoneyPlus',
-      locale: _locale,
+      locale: _languagePreference == _defaultLanguage
+          ? null
+          : Locale(_languagePreference),
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        final languageCode = deviceLocale?.languageCode == 'th' ? 'th' : 'en';
+        return supportedLocales.firstWhere(
+          (locale) => locale.languageCode == languageCode,
+          orElse: () => supportedLocales.first,
+        );
+      },
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
@@ -61,7 +71,10 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      home: HomeScreen(onLocaleChanged: _setLocale),
+      home: HomeScreen(
+        languagePreference: _languagePreference,
+        onLanguageChanged: _setLanguagePreference,
+      ),
     );
   }
 }

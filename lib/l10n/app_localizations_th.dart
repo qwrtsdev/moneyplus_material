@@ -237,4 +237,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settings_appbar => 'ตั้งค่า';
+
+  @override
+  String get settings_language_label => 'ภาษา';
+
+  @override
+  String get settings_language_default => 'ภาษาเริ่มต้น';
+
+  @override
+  String get settings_language_english => 'ภาษาอังกฤษ';
+
+  @override
+  String get settings_language_thai => 'ภาษาไทย';
 }

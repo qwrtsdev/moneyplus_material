@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
 
 class SettingsTab extends StatefulWidget {
-  const SettingsTab({super.key, this.onLocaleChanged});
+  const SettingsTab({
+    super.key,
+    this.languagePreference = 'default',
+    this.onLanguageChanged,
+  });
 
-  final ValueChanged<Locale>? onLocaleChanged;
+  final String languagePreference;
+  final ValueChanged<String>? onLanguageChanged;
 
   @override
   State<SettingsTab> createState() => _SettingsTabState();
@@ -13,11 +18,7 @@ class SettingsTab extends StatefulWidget {
 class _SettingsTabState extends State<SettingsTab> {
   @override
   Widget build(BuildContext context) {
-    final currentLocale = Localizations.localeOf(context);
-    final selectedLocale = AppLocalizations.supportedLocales.firstWhere(
-      (locale) => locale.languageCode == currentLocale.languageCode,
-      orElse: () => AppLocalizations.supportedLocales.first,
-    );
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,25 +27,32 @@ class _SettingsTabState extends State<SettingsTab> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          DropdownButtonFormField<Locale>(
-            value: selectedLocale,
+          DropdownButtonFormField<String>(
+            value: widget.languagePreference,
             decoration: const InputDecoration(
-              labelText: 'Language / ภาษา',
               border: OutlineInputBorder(),
+            ).copyWith(
+              labelText: l10n.settings_language_label,
             ),
             items: [
+              DropdownMenuItem(
+                value: 'default',
+                child: Text(l10n.settings_language_default),
+              ),
               for (final locale in AppLocalizations.supportedLocales)
                 DropdownMenuItem(
-                  value: locale,
+                  value: locale.languageCode,
                   child: Text(switch (locale.languageCode) {
-                    'th' => 'ไทย',
-                    'en' => 'English',
+                    'th' => l10n.settings_language_thai,
+                    'en' => l10n.settings_language_english,
                     _ => locale.languageCode,
                   }),
                 ),
             ],
-            onChanged: (locale) {
-              if (locale != null) widget.onLocaleChanged?.call(locale);
+            onChanged: (languagePreference) {
+              if (languagePreference != null) {
+                widget.onLanguageChanged?.call(languagePreference);
+              }
             },
           ),
         ],

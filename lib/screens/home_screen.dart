@@ -6,9 +6,14 @@ import 'settings_tab.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.onLocaleChanged});
+  const HomeScreen({
+    super.key,
+    this.languagePreference = 'default',
+    this.onLanguageChanged,
+  });
 
-  final ValueChanged<Locale>? onLocaleChanged;
+  final String languagePreference;
+  final ValueChanged<String>? onLanguageChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
       DashboardTab(),
       PlanTab(),
       BillTab(),
-      SettingsTab(onLocaleChanged: widget.onLocaleChanged),
+      SettingsTab(
+        languagePreference: widget.languagePreference,
+        onLanguageChanged: widget.onLanguageChanged,
+      ),
     ];
 
     return Scaffold(

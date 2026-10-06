@@ -493,6 +493,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings_appbar;
+
+  /// No description provided for @settings_language_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settings_language_label;
+
+  /// No description provided for @settings_language_default.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Language'**
+  String get settings_language_default;
+
+  /// No description provided for @settings_language_english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get settings_language_english;
+
+  /// No description provided for @settings_language_thai.
+  ///
+  /// In en, this message translates to:
+  /// **'Thai'**
+  String get settings_language_thai;
 }
 
 class _AppLocalizationsDelegate

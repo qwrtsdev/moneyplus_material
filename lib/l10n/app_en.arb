@@ -148,5 +148,9 @@
     }
   },
 
-  "settings_appbar": "Settings"
+  "settings_appbar": "Settings",
+  "settings_language_label": "Language",
+  "settings_language_default": "Default Language",
+  "settings_language_english": "English",
+  "settings_language_thai": "Thai"
 }
