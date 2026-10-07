@@ -124,10 +124,11 @@ class _DashboardTabState extends State<DashboardTab> {
         _lastUpdated = DateTime.now();
       });
     } catch (e) {
+      debugPrint('processNewSlips failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.dashboard_load_error('$e'))));
+      ).showSnackBar(SnackBar(content: Text(l10n.dashboard_load_error)));
     } finally {
       if (mounted) {
         Navigator.of(context).pop();

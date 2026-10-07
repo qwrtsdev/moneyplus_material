@@ -191,8 +191,8 @@ abstract class AppLocalizations {
   /// No description provided for @dashboard_load_error.
   ///
   /// In en, this message translates to:
-  /// **'Failed to load slips: {error}'**
-  String dashboard_load_error(String error);
+  /// **'Couldn\'t load slips. Please try again.'**
+  String get dashboard_load_error;
 
   /// No description provided for @dashboard_clear_title.
   ///

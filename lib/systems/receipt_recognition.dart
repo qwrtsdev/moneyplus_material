@@ -1,5 +1,6 @@
 // receipt_recognition.dart
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'slip_storage.dart';
@@ -169,8 +170,17 @@ Future<List<Map<String, dynamic>>> processNewSlips({
 
   try {
     for (File file in filesToProcess) {
-      final inputImage = InputImage.fromFilePath(file.path);
-      final recognizedText = await textRecognizer.processImage(inputImage);
+      // One unreadable/corrupt image must not fail the whole batch.
+      // Not recorded, so it is retried on the next scan.
+      final RecognizedText recognizedText;
+      try {
+        recognizedText = await textRecognizer.processImage(
+          InputImage.fromFilePath(file.path),
+        );
+      } catch (e) {
+        debugPrint('OCR failed for ${file.path}: $e');
+        continue;
+      }
 
       final amount = extractAmount(recognizedText) ?? 'Not Found';
 

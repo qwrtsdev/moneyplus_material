@@ -18,7 +18,7 @@
   "dashboard_appbar": "หน้าหลัก",
   "dashboard_enter_amount": "กรอกจำนวนเงิน",
   "dashboard_loading_slips": "กำลังโหลดสลีป กรุณารอสักครู่",
-  "dashboard_load_error": "เกิดข้อผิดพลาดในการโหลดสลิป: {error}",
+  "dashboard_load_error": "โหลดสลิปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
   "dashboard_clear_title": "ล้างประวัติรายการ",
   "dashboard_clear_confirm": "ต้องการลบรายการที่บันทึกไว้ทั้งหมดหรือไม่?",
   "dashboard_clear_error": "เกิดข้อผิดพลาดในการล้างรายการ: {error}",

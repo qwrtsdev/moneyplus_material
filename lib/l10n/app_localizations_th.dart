@@ -54,9 +54,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dashboard_loading_slips => 'กำลังโหลดสลีป กรุณารอสักครู่';
 
   @override
-  String dashboard_load_error(String error) {
-    return 'เกิดข้อผิดพลาดในการโหลดสลิป: $error';
-  }
+  String get dashboard_load_error => 'โหลดสลิปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
 
   @override
   String get dashboard_clear_title => 'ล้างประวัติรายการ';

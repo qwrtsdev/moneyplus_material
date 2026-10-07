@@ -18,12 +18,7 @@
   "dashboard_appbar": "Dashboard",
   "dashboard_enter_amount": "Enter amount",
   "dashboard_loading_slips": "Loading slips, please wait",
-  "dashboard_load_error": "Failed to load slips: {error}",
-  "@dashboard_load_error": {
-    "placeholders": {
-      "error": { "type": "String" }
-    }
-  },
+  "dashboard_load_error": "Couldn't load slips. Please try again.",
   "dashboard_clear_title": "Clear history",
   "dashboard_clear_confirm": "Delete all saved items?",
   "dashboard_clear_error": "Failed to clear items: {error}",
