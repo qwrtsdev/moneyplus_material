@@ -240,4 +240,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_appbar => 'Settings';
+
+  @override
+  String get settings_system_default => 'System default';
+
+  @override
+  String get settings_text_size => 'Text size';
+
+  @override
+  String get settings_text_size_normal => 'Normal';
+
+  @override
+  String get settings_text_size_big => 'Big';
+
+  @override
+  String get settings_text_size_biggest => 'Biggest';
 }

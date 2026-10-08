@@ -71,5 +71,10 @@
   "bill_share_text_split": "QR พร้อมเพย์ ยอด ฿{amount} (หารระหว่าง {count} คน)",
   "bill_share_error": "แชร์ QR Code ไม่สำเร็จ: {error}",
 
-  "settings_appbar": "ตั้งค่า"
+  "settings_appbar": "ตั้งค่า",
+  "settings_system_default": "ค่าเริ่มต้นของระบบ",
+  "settings_text_size": "ขนาดตัวอักษร",
+  "settings_text_size_normal": "ปกติ",
+  "settings_text_size_big": "ใหญ่",
+  "settings_text_size_biggest": "ใหญ่ที่สุด"
 }

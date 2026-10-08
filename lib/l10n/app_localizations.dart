@@ -493,6 +493,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings_appbar;
+
+  /// No description provided for @settings_system_default.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get settings_system_default;
+
+  /// No description provided for @settings_text_size.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settings_text_size;
+
+  /// No description provided for @settings_text_size_normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get settings_text_size_normal;
+
+  /// No description provided for @settings_text_size_big.
+  ///
+  /// In en, this message translates to:
+  /// **'Big'**
+  String get settings_text_size_big;
+
+  /// No description provided for @settings_text_size_biggest.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest'**
+  String get settings_text_size_biggest;
 }
 
 class _AppLocalizationsDelegate

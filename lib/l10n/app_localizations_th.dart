@@ -235,4 +235,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settings_appbar => 'ตั้งค่า';
+
+  @override
+  String get settings_system_default => 'ค่าเริ่มต้นของระบบ';
+
+  @override
+  String get settings_text_size => 'ขนาดตัวอักษร';
+
+  @override
+  String get settings_text_size_normal => 'ปกติ';
+
+  @override
+  String get settings_text_size_big => 'ใหญ่';
+
+  @override
+  String get settings_text_size_biggest => 'ใหญ่ที่สุด';
 }

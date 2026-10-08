@@ -143,5 +143,10 @@
     }
   },
 
-  "settings_appbar": "Settings"
+  "settings_appbar": "Settings",
+  "settings_system_default": "System default",
+  "settings_text_size": "Text size",
+  "settings_text_size_normal": "Normal",
+  "settings_text_size_big": "Big",
+  "settings_text_size_biggest": "Biggest"
 }
