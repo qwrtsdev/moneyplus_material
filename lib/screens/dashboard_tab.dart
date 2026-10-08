@@ -15,6 +15,8 @@ class DashboardTab extends StatefulWidget {
 
 class _DashboardTabState extends State<DashboardTab> {
   final _budgetController = TextEditingController();
+  final _customLabelController = TextEditingController();
+  final _customAmountController = TextEditingController();
 
   List<Map<String, dynamic>> _history = [];
   bool _isLoading = false;
@@ -32,6 +34,8 @@ class _DashboardTabState extends State<DashboardTab> {
   void dispose() {
     slipsRevision.removeListener(_loadSavedData);
     _budgetController.dispose();
+    _customLabelController.dispose();
+    _customAmountController.dispose();
     super.dispose();
   }
 
@@ -88,6 +92,136 @@ class _DashboardTabState extends State<DashboardTab> {
       await saveData('budget', _budget.toString());
     } else {
       setState(() => _budget = previous);
+    }
+  }
+
+  Future<void> _addCustomHistory() async {
+    final l10n = AppLocalizations.of(context)!;
+    _customLabelController.clear();
+    _customAmountController.clear();
+    final today = DateTime.now();
+    var selectedDate = today;
+    var showErrors = false;
+
+    final entry = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          scrollable: true,
+          title: Text(l10n.dashboard_add_history),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _customLabelController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: l10n.dashboard_history_label,
+                  errorText: showErrors &&
+                          _customLabelController.text.trim().isEmpty
+                      ? l10n.dashboard_history_label_error
+                      : null,
+                ),
+                onChanged: (_) {
+                  if (showErrors) setDialogState(() {});
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _customAmountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: l10n.dashboard_history_amount,
+                  prefixText: '฿ ',
+                  errorText: showErrors &&
+                          (double.tryParse(
+                                    _customAmountController.text
+                                        .trim()
+                                        .replaceAll(',', ''),
+                                  ) ??
+                                  0) <=
+                              0
+                      ? l10n.dashboard_history_amount_error
+                      : null,
+                ),
+                onChanged: (_) {
+                  if (showErrors) setDialogState(() {});
+                },
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: dialogContext,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: today,
+                  );
+                  if (picked == null) return;
+                  setDialogState(() {
+                    selectedDate = DateTime(
+                      picked.year,
+                      picked.month,
+                      picked.day,
+                      selectedDate.hour,
+                      selectedDate.minute,
+                      selectedDate.second,
+                    );
+                  });
+                },
+                icon: const Icon(Icons.calendar_today),
+                label: Text(
+                  '${l10n.dashboard_history_date}: '
+                  '${formatDate(selectedDate, Localizations.localeOf(context))}',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.common_cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final label = _customLabelController.text.trim();
+                final amount = double.tryParse(
+                  _customAmountController.text.trim().replaceAll(',', ''),
+                );
+                if (label.isEmpty || amount == null || amount <= 0) {
+                  setDialogState(() => showErrors = true);
+                  return;
+                }
+                Navigator.pop(dialogContext, {
+                  'Bank': label,
+                  'amount': amount.toStringAsFixed(2),
+                  'txTime': selectedDate.toIso8601String(),
+                  'imagePath': '',
+                  'custom': true,
+                });
+              },
+              child: Text(l10n.common_create),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (entry == null || !mounted) return;
+
+    try {
+      final saved = await loadSavedSlips();
+      final updated = [...saved, entry];
+      await saveSlips(updated);
+      if (!mounted) return;
+      setState(() => _history = _sortedByTime(updated));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.dashboard_add_history_error('$e'))),
+      );
     }
   }
 
@@ -214,6 +348,11 @@ class _DashboardTabState extends State<DashboardTab> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.dashboard_appbar)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addCustomHistory,
+        tooltip: l10n.dashboard_add_history,
+        child: const Icon(Icons.add),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20.0),
@@ -444,7 +583,7 @@ class _DashboardTabState extends State<DashboardTab> {
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      onTap: () => _showSlipImage(item),
+      onTap: item['custom'] == true ? null : () => _showSlipImage(item),
       leading: CircleAvatar(
         backgroundColor: Colors.deepPurple.shade50,
         child: const Icon(Icons.receipt_long, color: Colors.deepPurple),

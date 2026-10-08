@@ -182,6 +182,48 @@ abstract class AppLocalizations {
   /// **'Enter amount'**
   String get dashboard_enter_amount;
 
+  /// No description provided for @dashboard_add_history.
+  ///
+  /// In en, this message translates to:
+  /// **'Add history'**
+  String get dashboard_add_history;
+
+  /// No description provided for @dashboard_history_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get dashboard_history_label;
+
+  /// No description provided for @dashboard_history_label_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a description'**
+  String get dashboard_history_label_error;
+
+  /// No description provided for @dashboard_history_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get dashboard_history_amount;
+
+  /// No description provided for @dashboard_history_amount_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid amount'**
+  String get dashboard_history_amount_error;
+
+  /// No description provided for @dashboard_history_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dashboard_history_date;
+
+  /// No description provided for @dashboard_add_history_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add history: {error}'**
+  String dashboard_add_history_error(String error);
+
   /// No description provided for @dashboard_loading_slips.
   ///
   /// In en, this message translates to:

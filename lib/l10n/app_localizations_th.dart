@@ -51,6 +51,29 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dashboard_enter_amount => 'กรอกจำนวนเงิน';
 
   @override
+  String get dashboard_add_history => 'เพิ่มประวัติรายการ';
+
+  @override
+  String get dashboard_history_label => 'รายละเอียด';
+
+  @override
+  String get dashboard_history_label_error => 'กรุณากรอกรายละเอียด';
+
+  @override
+  String get dashboard_history_amount => 'จำนวนเงิน';
+
+  @override
+  String get dashboard_history_amount_error => 'กรุณากรอกจำนวนเงินให้ถูกต้อง';
+
+  @override
+  String get dashboard_history_date => 'วันที่';
+
+  @override
+  String dashboard_add_history_error(String error) {
+    return 'เพิ่มประวัติไม่สำเร็จ: $error';
+  }
+
+  @override
   String get dashboard_loading_slips => 'กำลังโหลดสลีป กรุณารอสักครู่';
 
   @override

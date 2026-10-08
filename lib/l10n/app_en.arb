@@ -17,6 +17,18 @@
 
   "dashboard_appbar": "Dashboard",
   "dashboard_enter_amount": "Enter amount",
+  "dashboard_add_history": "Add history",
+  "dashboard_history_label": "Description",
+  "dashboard_history_label_error": "Please enter a description",
+  "dashboard_history_amount": "Amount",
+  "dashboard_history_amount_error": "Please enter a valid amount",
+  "dashboard_history_date": "Date",
+  "dashboard_add_history_error": "Couldn't add history: {error}",
+  "@dashboard_add_history_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "dashboard_loading_slips": "Loading slips, please wait",
   "dashboard_load_error": "Couldn't load slips. Please try again.",
   "dashboard_clear_title": "Clear history",

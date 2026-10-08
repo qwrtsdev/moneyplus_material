@@ -17,6 +17,18 @@
 
   "dashboard_appbar": "หน้าหลัก",
   "dashboard_enter_amount": "กรอกจำนวนเงิน",
+  "dashboard_add_history": "เพิ่มประวัติรายการ",
+  "dashboard_history_label": "รายละเอียด",
+  "dashboard_history_label_error": "กรุณากรอกรายละเอียด",
+  "dashboard_history_amount": "จำนวนเงิน",
+  "dashboard_history_amount_error": "กรุณากรอกจำนวนเงินให้ถูกต้อง",
+  "dashboard_history_date": "วันที่",
+  "dashboard_add_history_error": "เพิ่มประวัติไม่สำเร็จ: {error}",
+  "@dashboard_add_history_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "dashboard_loading_slips": "กำลังโหลดสลีป กรุณารอสักครู่",
   "dashboard_load_error": "โหลดสลิปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
   "dashboard_clear_title": "ล้างประวัติรายการ",

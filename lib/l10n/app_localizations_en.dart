@@ -51,6 +51,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_enter_amount => 'Enter amount';
 
   @override
+  String get dashboard_add_history => 'Add history';
+
+  @override
+  String get dashboard_history_label => 'Description';
+
+  @override
+  String get dashboard_history_label_error => 'Please enter a description';
+
+  @override
+  String get dashboard_history_amount => 'Amount';
+
+  @override
+  String get dashboard_history_amount_error => 'Please enter a valid amount';
+
+  @override
+  String get dashboard_history_date => 'Date';
+
+  @override
+  String dashboard_add_history_error(String error) {
+    return 'Couldn\'t add history: $error';
+  }
+
+  @override
   String get dashboard_loading_slips => 'Loading slips, please wait';
 
   @override
