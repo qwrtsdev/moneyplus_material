@@ -5,9 +5,13 @@ import 'package:moneyplus_material/l10n/app_localizations.dart';
 import '../systems/plan_storage.dart';
 import '../systems/slip_storage.dart';
 import '../systems/thai_date.dart';
+import '../systems/amount_format.dart';
 
 String _money(double value) {
-  return value.toStringAsFixed(value == value.roundToDouble() ? 0 : 2);
+  return formatAmount(
+    value,
+    decimalDigits: value == value.roundToDouble() ? 0 : 2,
+  );
 }
 
 class PlanTab extends StatefulWidget {
@@ -129,7 +133,7 @@ class _PlanTabState extends State<PlanTab> {
         style: TextStyle(fontSize: 12),
       ),
       trailing: Text(
-        '฿${slip['amount']}',
+        '฿${formatAmountText('${slip['amount']}')}',
         style: TextStyle(fontWeight: FontWeight.w600),
       ),
       onTap: () => Navigator.pop(context, slip),

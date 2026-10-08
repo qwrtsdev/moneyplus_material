@@ -4,6 +4,7 @@ import '../systems/preference.dart';
 import '../systems/receipt_recognition.dart';
 import '../systems/slip_storage.dart';
 import '../systems/thai_date.dart';
+import '../systems/amount_format.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
 
 class DashboardTab extends StatefulWidget {
@@ -51,7 +52,9 @@ class _DashboardTabState extends State<DashboardTab> {
 
   Future<void> _editBudget() async {
     final previous = _budget;
-    _budgetController.text = _budget > 0 ? _budget.toStringAsFixed(2) : '';
+    _budgetController.text = _budget > 0
+      ? formatAmount(_budget, decimalDigits: 2)
+      : '';
 
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -228,7 +231,9 @@ class _DashboardTabState extends State<DashboardTab> {
   Future<void> _editHistoryAmount(Map<String, dynamic> item) async {
     final l10n = AppLocalizations.of(context)!;
     final currentAmount = amountOf(item);
-    _customAmountController.text = currentAmount?.toStringAsFixed(2) ?? '';
+    _customAmountController.text = currentAmount == null
+      ? ''
+      : formatAmount(currentAmount, decimalDigits: 2);
     var showError = false;
 
     final amount = await showDialog<double>(
@@ -517,8 +522,8 @@ class _DashboardTabState extends State<DashboardTab> {
                     const SizedBox(height: 4),
                     Text(
                       _overBudget > 0
-                          ? '-฿${_overBudget.toStringAsFixed(0)}'
-                          : '฿${_weeklyTotal.toStringAsFixed(0)}',
+                          ? '-฿${formatAmount(_overBudget, decimalDigits: 0)}'
+                          : '฿${formatAmount(_weeklyTotal, decimalDigits: 0)}',
                       style: TextStyle(
                         color: _overBudget > 0
                             ? Colors.red.shade200
@@ -635,7 +640,7 @@ class _DashboardTabState extends State<DashboardTab> {
               child: Text(
                 rawAmount == 'Not Found'
                     ? l10n.common_amount_not_found
-                    : l10n.dashboard_amount_read(rawAmount),
+                  : l10n.dashboard_amount_read(formatAmountText(rawAmount)),
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -654,7 +659,7 @@ class _DashboardTabState extends State<DashboardTab> {
     final rawAmount = (item['amount'] ?? '').toString();
     final displayAmount = rawAmount == 'Not Found'
       ? l10n.common_amount_not_found
-        : '-฿$rawAmount';
+      : '-฿${formatAmountText(rawAmount)}';
 
     final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
     final subtitle = txTime != null

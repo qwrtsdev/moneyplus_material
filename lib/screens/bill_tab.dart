@@ -5,6 +5,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:thai_promptpay_flutter/thai_promptpay_flutter.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
+import '../systems/amount_format.dart';
 import 'package:moneyplus_material/systems/preference.dart';
 
 class BillTab extends StatefulWidget {
@@ -99,10 +100,12 @@ class _BillTabState extends State<BillTab> {
       final totalAmount = double.tryParse(_amountController.text.trim()) ?? 0.0;
       final shareText = _isSplitBill
           ? l10n.bill_share_text_split(
-              ((_amountSatang ?? 0) / 100).toStringAsFixed(2),
+              formatAmount((_amountSatang ?? 0) / 100, decimalDigits: 2),
               _splitPeopleCount,
             )
-          : l10n.bill_share_text(totalAmount.toStringAsFixed(2));
+          : l10n.bill_share_text(
+              formatAmount(totalAmount, decimalDigits: 2),
+            );
 
       await Share.shareXFiles([XFile(imagePath)], text: shareText);
     } catch (e) {
@@ -247,7 +250,7 @@ class _BillTabState extends State<BillTab> {
                                   ),
                                 ),
                                 Text(
-                                  '฿${(totalAmountDouble / _splitPeopleCount).toStringAsFixed(2)}',
+                                  '฿${formatAmount(totalAmountDouble / _splitPeopleCount, decimalDigits: 2)}',
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     color: theme.colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -329,7 +332,10 @@ class _BillTabState extends State<BillTab> {
                             const SizedBox(height: 6),
                             Text(
                               l10n.bill_qr_amount(
-                                (_amountSatang! / 100).toStringAsFixed(2),
+                                formatAmount(
+                                  _amountSatang! / 100,
+                                  decimalDigits: 2,
+                                ),
                               ),
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: theme.colorScheme.primary,
@@ -341,7 +347,10 @@ class _BillTabState extends State<BillTab> {
                               Text(
                                 l10n.bill_split_summary(
                                   _splitPeopleCount,
-                                  totalAmountDouble.toStringAsFixed(2),
+                                  formatAmount(
+                                    totalAmountDouble,
+                                    decimalDigits: 2,
+                                  ),
                                 ),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,

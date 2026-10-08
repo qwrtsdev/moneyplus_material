@@ -76,7 +76,7 @@ void main() {
 
     expect(find.text('ทริปญี่ปุ่น'), findsOneWidget);
     expect(find.text('0%'), findsOneWidget);
-    expect(find.text('฿0 / ฿10000'), findsOneWidget);
+    expect(find.text('฿0 / ฿10,000'), findsOneWidget);
 
     await tester.tap(find.text('พบสลีปใหม่ 1 รายการ'));
     await tester.pumpAndSettle();
@@ -86,7 +86,7 @@ void main() {
     await settle(tester);
 
     expect(find.text('10%'), findsOneWidget);
-    expect(find.text('฿1000 / ฿10000'), findsOneWidget);
+    expect(find.text('฿1,000 / ฿10,000'), findsOneWidget);
     expect(find.textContaining('พบสลีปใหม่'), findsNothing);
   });
 
@@ -141,7 +141,7 @@ void main() {
     await tester.tap(find.text('ทริปญี่ปุ่น'));
     await tester.pumpAndSettle();
 
-    expect(find.text('เหลืออีก ฿9000'), findsOneWidget);
+    expect(find.text('เหลืออีก ฿9,000'), findsOneWidget);
     expect(find.text('รายการที่จ่าย (1)'), findsOneWidget);
 
     await tester.tap(find.text('ลบเป้าหมาย'));
