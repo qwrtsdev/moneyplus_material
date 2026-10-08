@@ -308,6 +308,18 @@ abstract class AppLocalizations {
   /// **'Money Balance'**
   String get plan_appbar;
 
+  /// No description provided for @plan_weekly_usage.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly spending'**
+  String get plan_weekly_usage;
+
+  /// No description provided for @plan_weekly_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total this week: ฿{amount}'**
+  String plan_weekly_total(String amount);
+
   /// No description provided for @plan_pick_slip.
   ///
   /// In en, this message translates to:

@@ -123,6 +123,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plan_appbar => 'Money Balance';
 
   @override
+  String get plan_weekly_usage => 'Weekly spending';
+
+  @override
+  String plan_weekly_total(String amount) {
+    return 'Total this week: ฿$amount';
+  }
+
+  @override
   String get plan_pick_slip => 'Choose a slip to assign to a goal';
 
   @override

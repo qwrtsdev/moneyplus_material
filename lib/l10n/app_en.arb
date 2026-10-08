@@ -59,6 +59,13 @@
   },
 
   "plan_appbar": "Money Balance",
+  "plan_weekly_usage": "Weekly spending",
+  "plan_weekly_total": "Total this week: ฿{amount}",
+  "@plan_weekly_total": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
   "plan_pick_slip": "Choose a slip to assign to a goal",
   "plan_create_goal_first": "Please create a goal first",
   "plan_which_goal": "Which goal is this slip for?",

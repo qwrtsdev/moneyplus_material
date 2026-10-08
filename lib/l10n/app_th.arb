@@ -44,6 +44,8 @@
   "dashboard_amount_read": "ยอดที่อ่านได้: ฿{amount}",
 
   "plan_appbar": "สมดุลเงิน",
+  "plan_weekly_usage": "ยอดใช้จ่ายรายสัปดาห์",
+  "plan_weekly_total": "รวมสัปดาห์นี้: ฿{amount}",
   "plan_pick_slip": "เลือกสลีปที่ต้องการจัดเข้าเป้าหมาย",
   "plan_create_goal_first": "กรุณาสร้างเป้าหมายก่อน",
   "plan_which_goal": "สลีปนี้เป็นการจ่ายของเป้าหมายไหน",

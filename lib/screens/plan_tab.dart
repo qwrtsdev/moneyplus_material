@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
 import '../systems/plan_storage.dart';
@@ -18,6 +20,7 @@ class PlanTab extends StatefulWidget {
 class _PlanTabState extends State<PlanTab> {
   List<Map<String, dynamic>> _goals = [];
   List<Map<String, dynamic>> _pendingSlips = [];
+  List<Map<String, dynamic>> _historySlips = [];
 
   @override
   void initState() {
@@ -56,6 +59,7 @@ class _PlanTabState extends State<PlanTab> {
     setState(() {
       _goals = goals;
       _pendingSlips = pending;
+      _historySlips = slips;
     });
   }
 
@@ -180,6 +184,8 @@ class _PlanTabState extends State<PlanTab> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          _buildWeeklyUsageChart(),
+          const SizedBox(height: 16),
           if (_pendingSlips.isNotEmpty) ...[
             _buildPendingBanner(),
             const SizedBox(height: 16),
@@ -194,6 +200,97 @@ class _PlanTabState extends State<PlanTab> {
             children: [..._goals.map(_buildGoalCard), _buildAddCard()],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyUsageChart() {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context);
+    final today = DateUtils.dateOnly(DateTime.now());
+    final weekStart = today.subtract(Duration(days: today.weekday % 7));
+    final dailyTotals = List<double>.filled(7, 0);
+
+    for (final slip in _historySlips) {
+      final txTime = DateTime.tryParse('${slip['txTime']}');
+      final amount = amountOf(slip);
+      if (txTime == null || amount == null) continue;
+
+      final date = DateUtils.dateOnly(txTime.toLocal());
+      if (date.isBefore(weekStart) || date.isAfter(today)) continue;
+      dailyTotals[date.weekday % 7] += amount;
+    }
+
+    final total = dailyTotals.fold<double>(0, (sum, amount) => sum + amount);
+    final peak = dailyTotals.fold<double>(0, math.max);
+    final weekdayLabels = MaterialLocalizations.of(context).narrowWeekdays;
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(128)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.plan_weekly_usage,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 2),
+            Text(l10n.plan_weekly_total(_money(total))),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 78,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(7, (index) {
+                  final date = weekStart.add(Duration(days: index));
+                  final amount = dailyTotals[index];
+                  final barHeight = peak == 0
+                      ? 3.0
+                      : (amount / peak * 48).clamp(3.0, 48.0);
+                  final weekdayLabel = weekdayLabels[date.weekday % 7];
+
+                  return Expanded(
+                    child: Tooltip(
+                      message:
+                          '${formatDate(date, locale)}\n฿${_money(amount)}',
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            height: 56,
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                width: 20,
+                                height: barHeight,
+                                decoration: BoxDecoration(
+                                  color: amount == 0
+                                      ? theme.colorScheme.outlineVariant
+                                      : theme.colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(weekdayLabel, style: theme.textTheme.labelSmall),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

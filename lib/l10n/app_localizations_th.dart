@@ -124,6 +124,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get plan_appbar => 'สมดุลเงิน';
 
   @override
+  String get plan_weekly_usage => 'ยอดใช้จ่ายรายสัปดาห์';
+
+  @override
+  String plan_weekly_total(String amount) {
+    return 'รวมสัปดาห์นี้: ฿$amount';
+  }
+
+  @override
   String get plan_pick_slip => 'เลือกสลีปที่ต้องการจัดเข้าเป้าหมาย';
 
   @override
