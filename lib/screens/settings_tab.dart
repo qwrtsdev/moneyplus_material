@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moneyplus_material/l10n/app_localizations.dart';
 
 /// Text size choices: Normal, Big, Biggest.
-const kTextScales = [1.0, 2.0, 3.0];
+const kTextScales = [1.0, 1.5, 2.0];
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({
@@ -28,7 +28,7 @@ class _SettingsTabState extends State<SettingsTab> {
     final l10n = AppLocalizations.of(context)!;
     final sizeLabel = switch (widget.textScale) {
       1.0 => l10n.settings_text_size_normal,
-      2.0 => l10n.settings_text_size_big,
+      1.5 => l10n.settings_text_size_big,
       _ => l10n.settings_text_size_biggest,
     };
 
