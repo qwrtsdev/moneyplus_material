@@ -54,6 +54,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard_add_history => 'Add history';
 
   @override
+  String get dashboard_edit_history => 'Edit spending amount';
+
+  @override
+  String dashboard_edit_history_error(String error) {
+    return 'Couldn\'t update amount: $error';
+  }
+
+  @override
   String get dashboard_history_label => 'Description';
 
   @override

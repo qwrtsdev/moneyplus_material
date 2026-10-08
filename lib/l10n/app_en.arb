@@ -18,6 +18,13 @@
   "dashboard_appbar": "Dashboard",
   "dashboard_enter_amount": "Enter amount",
   "dashboard_add_history": "Add history",
+  "dashboard_edit_history": "Edit spending amount",
+  "dashboard_edit_history_error": "Couldn't update amount: {error}",
+  "@dashboard_edit_history_error": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "dashboard_history_label": "Description",
   "dashboard_history_label_error": "Please enter a description",
   "dashboard_history_amount": "Amount",

@@ -54,6 +54,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dashboard_add_history => 'เพิ่มประวัติรายการ';
 
   @override
+  String get dashboard_edit_history => 'แก้ไขยอดใช้จ่าย';
+
+  @override
+  String dashboard_edit_history_error(String error) {
+    return 'แก้ไขยอดเงินไม่สำเร็จ: $error';
+  }
+
+  @override
   String get dashboard_history_label => 'รายละเอียด';
 
   @override

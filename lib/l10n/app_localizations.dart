@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'Add history'**
   String get dashboard_add_history;
 
+  /// No description provided for @dashboard_edit_history.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit spending amount'**
+  String get dashboard_edit_history;
+
+  /// No description provided for @dashboard_edit_history_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update amount: {error}'**
+  String dashboard_edit_history_error(String error);
+
   /// No description provided for @dashboard_history_label.
   ///
   /// In en, this message translates to:

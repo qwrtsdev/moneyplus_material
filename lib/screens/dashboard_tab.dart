@@ -225,6 +225,85 @@ class _DashboardTabState extends State<DashboardTab> {
     }
   }
 
+  Future<void> _editHistoryAmount(Map<String, dynamic> item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final currentAmount = amountOf(item);
+    _customAmountController.text = currentAmount?.toStringAsFixed(2) ?? '';
+    var showError = false;
+
+    final amount = await showDialog<double>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.dashboard_edit_history),
+          content: TextField(
+            controller: _customAmountController,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: l10n.dashboard_history_amount,
+              prefixText: '฿ ',
+              errorText: showError ? l10n.dashboard_history_amount_error : null,
+            ),
+            onChanged: (_) {
+              if (showError) setDialogState(() => showError = false);
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.common_cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final value = double.tryParse(
+                  _customAmountController.text.trim().replaceAll(',', ''),
+                );
+                if (value == null || value <= 0) {
+                  setDialogState(() => showError = true);
+                  return;
+                }
+                Navigator.pop(dialogContext, value);
+              },
+              child: Text(l10n.common_ok),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (amount == null || !mounted) return;
+
+    try {
+      final saved = await loadSavedSlips();
+      final index = saved.indexWhere(
+        (record) =>
+            record['imagePath'] == item['imagePath'] &&
+            record['txTime'] == item['txTime'] &&
+            record['Bank'] == item['Bank'] &&
+            record['amount'] == item['amount'] &&
+            record['custom'] == item['custom'],
+      );
+      if (index == -1) {
+        await _loadSavedData();
+        return;
+      }
+
+      final updated = [...saved];
+      updated[index] = {
+        ...updated[index],
+        'amount': amount.toStringAsFixed(2),
+      };
+      await saveSlips(updated);
+      if (!mounted) return;
+      setState(() => _history = _sortedByTime(updated));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.dashboard_edit_history_error('$e'))),
+      );
+    }
+  }
+
   Future<void> _handleRefresh() async {
     if (_isLoading) return;
 
@@ -571,9 +650,10 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   Widget _buildHistoryTile(Map<String, dynamic> item) {
+    final l10n = AppLocalizations.of(context)!;
     final rawAmount = (item['amount'] ?? '').toString();
     final displayAmount = rawAmount == 'Not Found'
-        ? AppLocalizations.of(context)!.common_amount_not_found
+      ? l10n.common_amount_not_found
         : '-฿$rawAmount';
 
     final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
@@ -590,9 +670,22 @@ class _DashboardTabState extends State<DashboardTab> {
       ),
       title: Text(item['Bank']?.toString() ?? '-', style: TextStyle()),
       subtitle: Text(subtitle, style: TextStyle(fontSize: 12)),
-      trailing: Text(
-        displayAmount,
-        style: TextStyle(fontWeight: FontWeight.w600),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            displayAmount,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(width: 3),
+          IconButton(
+            tooltip: l10n.dashboard_edit_history,
+            onPressed: () => _editHistoryAmount(item),
+            icon: const Icon(Icons.edit_outlined, size: 20),
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+          ),
+        ],
       ),
     );
   }
