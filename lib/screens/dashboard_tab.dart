@@ -408,10 +408,17 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   double get _weeklyTotal {
+    final today = DateUtils.dateOnly(DateTime.now());
+    final weekStart = today.subtract(Duration(days: today.weekday % 7));
     double total = 0;
     for (final item in _history) {
-      final amountStr = (item['amount'] ?? '').toString().replaceAll(',', '');
-      total += double.tryParse(amountStr) ?? 0;
+      final txTime = DateTime.tryParse(item['txTime']?.toString() ?? '');
+      final amount = amountOf(item);
+      if (txTime == null || amount == null) continue;
+
+      final date = DateUtils.dateOnly(txTime.toLocal());
+      if (date.isBefore(weekStart) || date.isAfter(today)) continue;
+      total += amount;
     }
     return total;
   }
