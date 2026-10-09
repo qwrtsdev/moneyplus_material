@@ -81,6 +81,27 @@ void main() {
         expect(find.byType(ListTile), findsNWidgets(10), reason: '$locale');
       }
     });
+
+    testWidgets('Edit work correctly', (
+      WidgetTester tester,
+    ) async {
+      for (final locale in AppLocalizations.supportedLocales) {
+        final l10n = await pumpApp(tester, locale, 'dashboard');
+
+        await tester.tap(find.byIcon(Icons.edit_outlined).first);
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.dashboard_edit_history), findsOneWidget);
+
+        await tester.enterText(find.byType(TextField).at(0), '99.99');
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text(l10n.common_ok));
+        await tester.pumpAndSettle();
+
+        expect(find.text('-฿99.99'), findsOneWidget);
+      }
+    });
   });
 
   group('Bill test', () {
