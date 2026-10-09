@@ -5,11 +5,15 @@ import 'package:integration_test/integration_test.dart';
 import 'package:moneyplus_material/main.dart' as app;
 import 'package:moneyplus_material/systems/preference.dart';
 
-Future<AppLocalizations> pumpApp(WidgetTester tester, Locale locale) async {
+Future<AppLocalizations> pumpApp(WidgetTester tester, Locale locale, String screen) async {
   await saveData('locale', locale.languageCode);
   await tester.pumpWidget(app.MyApp(key: ValueKey(locale)));
   await tester.pumpAndSettle();
-  await tester.tap(find.byIcon(Icons.dashboard));
+  if (screen == 'dashboard') {
+    await tester.tap(find.byIcon(Icons.dashboard));
+  } else if (screen == 'bill') {
+    await tester.tap(find.byIcon(Icons.request_quote));
+  }
   await tester.pumpAndSettle();
   return lookupAppLocalizations(locale);
 }
@@ -17,12 +21,12 @@ Future<AppLocalizations> pumpApp(WidgetTester tester, Locale locale) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Dashboard refresh flow', () {
+  group('Dashboard test', () {
     testWidgets(
       'tapping refresh shows the loading state then settles on a result',
       (WidgetTester tester) async {
         for (final locale in AppLocalizations.supportedLocales) {
-          final l10n = await pumpApp(tester, locale);
+          final l10n = await pumpApp(tester, locale, 'dashboard');
 
           expect(find.text(l10n.dashboard_history), findsOneWidget);
           expect(find.byIcon(Icons.refresh), findsOneWidget);
@@ -57,7 +61,7 @@ void main() {
       WidgetTester tester,
     ) async {
       for (final locale in AppLocalizations.supportedLocales) {
-        await pumpApp(tester, locale);
+        await pumpApp(tester, locale, 'dashboard');
 
         // Capture the summary figure before refreshing.
         expect(find.textContaining('฿'), findsWidgets);
@@ -72,5 +76,41 @@ void main() {
         expect(find.textContaining('฿'), findsWidgets);
       }
     });
+  });
+
+  group('Bill test', () {
+    testWidgets(
+      'Split Bill and QR works correctly',
+      (WidgetTester tester) async {
+        for (final locale in AppLocalizations.supportedLocales) {
+          final l10n = await pumpApp(tester, locale, 'bill');
+
+          await tester.enterText(find.byType(TextField).at(0), '0912345678');
+          await tester.enterText(find.byType(TextField).at(1), '10.00');
+          await tester.pumpAndSettle();
+
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+
+          await tester.tap(find.text(l10n.bill_split_subtitle));
+          await tester.pumpAndSettle();
+
+          final dropdown = find.text(l10n.bill_people_count(2)); 
+          await tester.tap(dropdown);
+          await tester.pumpAndSettle();
+
+          final dropdownItem = find.text(l10n.bill_people_count(5)); 
+          await tester.tap(dropdownItem);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(l10n.bill_generate_qr));
+          await tester.pumpAndSettle();
+
+          final listFinder = find.byType(SingleChildScrollView);
+          await tester.fling(listFinder, const Offset(0, -100000), 10000);
+
+          expect(find.text(l10n.bill_qr_amount('2.00')), findsOneWidget);
+        }
+      },
+    );
   });
 }
