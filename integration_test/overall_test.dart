@@ -23,7 +23,7 @@ void main() {
 
   group('Dashboard test', () {
     testWidgets(
-      'tapping refresh shows the loading state then settles on a result',
+      'Dashboard refresh works correctly',
       (WidgetTester tester) async {
         for (final locale in AppLocalizations.supportedLocales) {
           final l10n = await pumpApp(tester, locale, 'dashboard');
@@ -53,29 +53,10 @@ void main() {
               .evaluate()
               .isNotEmpty;
           expect(hasHistoryTiles || hasEmptyState, isTrue, reason: '$locale');
+          expect(find.textContaining('฿'), findsWidgets);
         }
       },
     );
-
-    testWidgets('summary amount updates when new history is loaded', (
-      WidgetTester tester,
-    ) async {
-      for (final locale in AppLocalizations.supportedLocales) {
-        await pumpApp(tester, locale, 'dashboard');
-
-        // Capture the summary figure before refreshing.
-        expect(find.textContaining('฿'), findsWidgets);
-
-        await tester.tap(find.byIcon(Icons.refresh));
-        await tester.pumpAndSettle(
-          const Duration(milliseconds: 500),
-          EnginePhase.sendSemanticsUpdate,
-          const Duration(seconds: 30),
-        );
-
-        expect(find.textContaining('฿'), findsWidgets);
-      }
-    });
   });
 
   group('Bill test', () {
