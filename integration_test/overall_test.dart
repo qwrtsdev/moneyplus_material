@@ -102,6 +102,29 @@ void main() {
         expect(find.text('-฿99.99'), findsOneWidget);
       }
     });
+
+    testWidgets('Add work correctly', (
+      WidgetTester tester,
+    ) async {
+      for (final locale in AppLocalizations.supportedLocales) {
+        final l10n = await pumpApp(tester, locale, 'dashboard');
+
+        await tester.tap(find.byIcon(Icons.add));
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10n.dashboard_add_history), findsOneWidget);
+
+        await tester.enterText(find.byType(TextField).at(0), 'TestTest');
+        await tester.enterText(find.byType(TextField).at(1), '999.99');
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text(l10n.common_create));
+        await tester.pumpAndSettle();
+
+        expect(find.text('-฿999.99'), findsWidgets);
+        expect(find.text('TestTest'), findsWidgets);
+      }
+    });
   });
 
   group('Bill test', () {
